@@ -37,9 +37,16 @@ const UserLocationMarker = () => {
   if (!userPosition) return null;
 
   return (
-    <Marker position={userPosition}>
-      <Popup>Tvoja trenutna lokacija</Popup>
-    </Marker>
+    <Marker
+  position={userPosition}
+  icon={new L.Icon({
+    iconUrl: "/marker.png",
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+  })}
+>
+  <Popup>📍 Tvoja trenutna lokacija</Popup>
+</Marker>
   );
 };
 
@@ -140,7 +147,7 @@ const MapComponent: React.FC = () => {
 
   useEffect(() => {
     fetchMarkers();
-    const interval = setInterval(fetchMarkers, 0);
+    const interval = setInterval(fetchMarkers, 1000);
     return () => clearInterval(interval);
   }, []);
 

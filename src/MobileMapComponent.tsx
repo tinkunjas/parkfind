@@ -146,7 +146,7 @@ const MobileMapComponent: React.FC = () => {
     };
   
     fetchMarkers();
-    const interval = setInterval(fetchMarkers, 0);
+    const interval = setInterval(fetchMarkers, 1000);
   
     return () => clearInterval(interval);
   }, []);
