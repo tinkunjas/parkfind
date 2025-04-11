@@ -56,9 +56,17 @@ const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string 
 
   useEffect(() => {
     const target = [lat, lon] as [number, number];
+
+    const customIcon = new L.Icon({
+      iconUrl: "/marker.png",
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+    });
+
     map.setView(target, 15);
 
-    const marker = L.marker(target).addTo(map);
+    const marker = L.marker(target, { icon: customIcon }).addTo(map);
     if (name) {
       marker.bindPopup(name).openPopup();
     }
@@ -70,6 +78,7 @@ const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string 
 
   return null;
 };
+
 
 interface MarkerData {
   id: number;
