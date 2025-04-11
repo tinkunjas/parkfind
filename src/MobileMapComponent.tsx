@@ -10,7 +10,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine";
-import "./mobilemapcomponent.css";
+import "./MobileMapComponent.css";
 import MobileSearchHandler from "./MobileSearchHandler";
 import SearchBar from "./MobileSearchBar";
 import MobileSidebar from "./MobileSidebar";
