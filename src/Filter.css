@@ -1,0 +1,53 @@
+.filter-container {
+  position: absolute;
+  top: 5.5rem;
+  left: 1rem;
+  z-index: 1500;
+  background-color: #ffffffdd;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  color: #2563eb;
+}
+
+.zone-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.zone-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  margin: 5px;
+  transition: transform 0.2s ease;
+}
+
+.zone-button:hover {
+  transform: scale(1.05);
+}
+
+.zone-1 {
+  background-color: #e53935;
+}
+
+.zone-2 {
+  background-color: #fdd835;
+  color: black;
+}
+
+.zone-3 {
+  background-color: #43a047;
+}
+
+.zone-4 {
+  background-color: #fb8c00;
+}
+
+.zone-button.active {
+  outline: 3px solid white;
+}

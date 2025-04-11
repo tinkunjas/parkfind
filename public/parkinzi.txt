@@ -1,0 +1,26 @@
+1;45.803517;15.963383;Parking Cibona;1;0
+2;45.811966;16.041667;Kampus Borongaj;2;120
+3;45.806940;15.888317;I.B Mažuranić parking;3;3
+4;45.85553;15.80629;Parking Kodrmanova;4;12
+5;45.861539;15.802202;Terminal parking;2;5
+6;45.861679;15.800905;Crkva parking;4;23
+7;45.8161836;15.9696926;Garaža Tuškanac;1;350
+8;45.8149202;15.9813745;Garaža Langov trg;1;600
+9;45.8082743;15.9800942;Garaža Petrinjska;1;377
+10;45.802848;16.049528;City Centar East;2;500
+11;45.8130914;15.9975674;Garaža Gorica;2;500
+12;45.808135;15.952888;Parkiralište Dom sportova;2;150
+13;45.7985296;16.0107497;Parkiralište Heinzlova;3;200
+14;45.772135;15.940786;Arena Centar Parking;4;3000
+15;45.8132396;15.9818498;Parkiralište Palmotićeva;1;50
+16;45.7862449;15.9178006;Parkiralište Jarun Sjever;1;100
+17;45.8105418;15.9543168;Parking Trg Francuske Republike;2;85
+18;45.797243;15.857031;King Cross Jankomir;4;40
+19;45.8132241;15.9831667;Garaža Importanne Galleria;1;120
+20;45.8378089;15.9829818;Parkiralište Gradskih groblja;3;25
+21;45.870602;15.794100;Parkiralište Srednja Škola Bana Josipa Jelačića;1;60
+22;45.8067021;15.9846508;Garaža Branimir;1;45
+23;45.8146931;16.0133689;Garaža Svetice;4;150
+24;45.7996076;15.9544473;Parkiralište Trešnjevački trg;2;30
+25;45.777891;15.966296;Parkiralište Radoslava Cimermana;3;70
+26;45.804030;15.945384;Parkiralište Ericsson Nikola Tesla;4;2

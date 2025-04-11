@@ -1,0 +1,163 @@
+.sidebar {
+    position: absolute;
+    top: 0;
+    left: -250px;
+    width: 200px;
+    height: 93%;
+    background-color: #e4dede;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+    padding: 2rem 1.5rem;
+    transition: left 0.3s ease;
+    z-index: 1500;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebar li {
+    margin: 1.2rem 0;
+    font-size: 1rem;
+    color: #2563eb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+  }
+  
+  .hamburger {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: #2563eb;
+    color: rgb(255, 255, 255);
+    border: none;
+    font-size: 1.5rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    z-index: 1600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .hamburger:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .tile-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 1rem;
+    padding: 0 1rem;
+  }
+  
+  .tile-options button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2563eb;
+    color: white;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .tile-options button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .sidebar h2 {
+    font-size: 1.6rem;
+    color: #1d4ed8;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  .sidebar h3 {
+    font-size: 1.2rem;
+    color: #1e40af;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+  }
+  
+  .toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: #2563eb;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(24px);
+  }
+  
+  .slider.round {
+    border-radius: 24px;
+  }
+  
+  .slider.round:before {
+    border-radius: 50%;
+  }
+  
+
+  .sidebar h2
+  {
+    text-align: center;
+    margin: auto;
+  }
+
+  .map-icon {
+    font-size: 1.6rem;
+    margin-right: 8px;
+  }
+  
