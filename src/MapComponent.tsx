@@ -36,19 +36,20 @@ const UserLocationMarker = () => {
 
   if (!userPosition) return null;
 
-  return (
-    <Marker
-  position={userPosition}
-  icon={new L.Icon({
+  const userIcon = new L.Icon({
     iconUrl: "/marker.png",
     iconSize: [40, 40],
     iconAnchor: [20, 40],
-  })}
->
-  <Popup>📍 Tvoja trenutna lokacija</Popup>
-</Marker>
+    popupAnchor: [0, -40],
+  });
+
+  return (
+    <Marker position={userPosition} icon={userIcon}>
+      <Popup>Tvoja trenutna lokacija</Popup>
+    </Marker>
   );
 };
+
 
 const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string }) => {
   const map = useMap();
