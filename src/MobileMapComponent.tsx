@@ -227,11 +227,13 @@ const MobileMapComponent: React.FC = () => {
             )}
           </MapContainer>
 
-          <SearchBar onSearch={handleSearch} />
+<SearchBar onSearch={handleSearch} />
 
-          <button className="fullscreen-toggle" onClick={() => setIsFullscreen(prev => !prev)}>
-            <img src="/fullscreen.png" alt="fullscreen" />
-          </button>
+{}
+<button className="fullscreen-toggle" onClick={() => setIsFullscreen(prev => !prev)}>
+  <img src="/fullscreen.png" alt="fullscreen" />
+</button>
+
         </div>
 
         {routeTarget && (
