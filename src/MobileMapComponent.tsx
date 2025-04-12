@@ -82,44 +82,35 @@ const MobileMapComponent: React.FC = () => {
 
   const handleSearch = (lat: number, lon: number, name?: string) => {
     setSearchResult({ lat, lon, name });
-    if (mapRef.current) {
-      mapRef.current.setView([lat, lon], 15);
-    }
+    mapRef.current?.setView([lat, lon], 15);
   };
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserPosition([pos.coords.latitude, pos.coords.longitude]);
-      },
+      (pos) => setUserPosition([pos.coords.latitude, pos.coords.longitude]),
       (err) => console.error("Greška pri dohvaćanju lokacije:", err)
     );
   }, []);
 
   useEffect(() => {
     if (routeTarget && userPosition && mapRef.current) {
-      if (routingControlRef.current) {
-        routingControlRef.current.remove();
-      }
+      routingControlRef.current?.remove();
 
       routingControlRef.current = L.Routing.control({
         waypoints: [
           L.latLng(userPosition[0], userPosition[1]),
-          L.latLng(routeTarget[0], routeTarget[1])
+          L.latLng(routeTarget[0], routeTarget[1]),
         ],
         routeWhileDragging: false,
         show: false,
         addWaypoints: false,
         draggableWaypoints: false,
         createMarker: () => null,
+        containerClassName: "custom-routing-container", // Key line
         position: "bottomright",
         lineOptions: {
           styles: [
-            {
-              color: "#2563eb",
-              weight: 3.5,
-              opacity: 0.9
-            }
+            { color: "#2563eb", weight: 3.5, opacity: 0.9 }
           ]
         }
       }).addTo(mapRef.current);
@@ -131,7 +122,7 @@ const MobileMapComponent: React.FC = () => {
       try {
         const res = await fetch("/parkinzi.txt");
         const text = await res.text();
-        const parsed: MarkerData[] = text.trim().split("\n").map((line) => {
+        const parsed = text.trim().split("\n").map((line) => {
           const [id, lat, lon, name, zona, slobodnaMjesta] = line.split(";");
           return {
             id: Number(id),
@@ -157,8 +148,8 @@ const MobileMapComponent: React.FC = () => {
     <div className="mobile-container">
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
-  
-      <div className={`mobile-map-wrapper ${isFullscreen ? "fullscreen" : ""}`}>
+
+      <div className="mobile-map-wrapper">
         <div className="mobile-map">
           <MapContainer
             center={defaultPosition}
@@ -167,19 +158,15 @@ const MobileMapComponent: React.FC = () => {
             style={{ height: "100%", width: "100%" }}
             maxBounds={[[42.3, 13.3], [46.9, 19.7]]}
             maxBoundsViscosity={1.0}
-            ref={(ref) => {
-              if (ref) mapRef.current = ref;
-            }}
+            ref={mapRef}
           >
             <MapResizer trigger={isFullscreen} />
-  
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; OpenStreetMap contributors'
             />
-  
             <ZoomControl position="bottomleft" />
-  
+
             {userPosition && (
               <Marker
                 position={userPosition}
@@ -194,7 +181,7 @@ const MobileMapComponent: React.FC = () => {
                 </Popup>
               </Marker>
             )}
-  
+
             {markers.map((marker) => (
               <Marker
                 key={marker.id}
@@ -202,9 +189,9 @@ const MobileMapComponent: React.FC = () => {
                 icon={zoneIcons[marker.zona]}
               >
                 <Popup>
-                  {marker.name} <br />
-                  Zona: {marker.zona} <br />
-                  Slobodna mjesta: {marker.slobodnaMjesta} <br />
+                  {marker.name}<br />
+                  Zona: {marker.zona}<br />
+                  Slobodna mjesta: {marker.slobodnaMjesta}<br />
                   <button
                     className="popup-navigate-button"
                     onClick={(e) => {
@@ -220,7 +207,7 @@ const MobileMapComponent: React.FC = () => {
                 </Popup>
               </Marker>
             ))}
-  
+
             {searchResult && (
               <Marker
                 position={[searchResult.lat, searchResult.lon]}
@@ -239,15 +226,28 @@ const MobileMapComponent: React.FC = () => {
               </Marker>
             )}
           </MapContainer>
-  
+
           <SearchBar onSearch={handleSearch} />
-  
-          <button className="fullscreen-toggle" onClick={() => setIsFullscreen((prev) => !prev)}>
-            <img src="/fullscreen.png" alt="fullscreen" style={{ width: "22px", height: "22px" }} />
+
+          <button className="fullscreen-toggle" onClick={() => setIsFullscreen(prev => !prev)}>
+            <img src="/fullscreen.png" alt="fullscreen" />
           </button>
         </div>
+
+        {routeTarget && (
+          <button
+            className="cancel-navigation"
+            onClick={() => {
+              routingControlRef.current?.remove();
+              routingControlRef.current = null;
+              setRouteTarget(null);
+            }}
+          >
+            Prekini navigaciju
+          </button>
+        )}
       </div>
-  
+
       {!isFullscreen && (
         <div className="mobile-content">
           <h3 style={{ marginBottom: "1rem", color: "#000" }}>🅿️ Lista parkinga</h3>
@@ -261,27 +261,14 @@ const MobileMapComponent: React.FC = () => {
                   setRouteTarget([marker.lat, marker.lon]);
                 }}
               >
-                <img src="/directiongo2.png" alt="go" style={{ width: "24px", height: "24px" }} />
+                <img src="/directiongo2.png" alt="go" />
               </button>
             </div>
           ))}
         </div>
       )}
-  
-      {routeTarget && (
-        <button
-          className="cancel-navigation"
-          onClick={() => {
-            routingControlRef.current?.remove();
-            routingControlRef.current = null;
-            setRouteTarget(null);
-          }}
-        >
-          Prekini navigaciju
-        </button>
-      )}
     </div>
   );
-}  
+};
 
 export default MobileMapComponent;

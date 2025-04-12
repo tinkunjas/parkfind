@@ -6,16 +6,36 @@
   flex-direction: column;
 }
 
-.mobile-map {
-  height: 33vh;
-  width: 100%;
+.mobile-map-wrapper {
   position: relative;
-  z-index: 1;
-  transition: height 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.mobile-map.fullscreen {
-  height: 100vh;
+.mobile-map {
+  flex: 1;
+  position: relative;
+}
+
+.fullscreen-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2000;
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  width: 44px;
+  height: 44px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.fullscreen-toggle img {
+  width: 22px;
+  height: 22px;
 }
 
 .mobile-content {
@@ -33,46 +53,6 @@
   z-index: 900;
 }
 
-.fullscreen .mobile-content {
-  transform: translateY(100%);
-}
-
-
-.mobile-map.fullscreen + .mobile-content {
-  display: none;
-}
-
-.fullscreen-toggle {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  z-index: 1000;
-  background-color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 4px; 
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-}
-
-.fullscreen-toggle img {
-  width: 20px;
-  height: 20px;
-}
-
-
-.fullscreen-toggle:hover {
-  background-color: #eee;
-}
-
-.no-scroll {
-  overflow: hidden;
-}
-
 .parking-item {
   display: flex;
   justify-content: space-between;
@@ -82,12 +62,6 @@
   padding: 10px 14px;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.parking-item span {
-  color: #111;
-  font-weight: 500;
-  font-size: 16px;
 }
 
 .navigate-button {
@@ -102,15 +76,6 @@
   height: 24px;
 }
 
-.mobile-content h3 {
-  color: #000;
-}
-
-.leaflet-control-zoom {
-  transform: scale(0.7);
-  margin-bottom: 10px;
-  margin-left: 10px;
-}
 .hamburger {
   position: absolute;
   top: 14px;
@@ -125,108 +90,29 @@
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
+
 .cancel-navigation {
   position: fixed;
-  bottom: 80px;
+  bottom: 85px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #f44336;
+  background-color: #ef4444;
   color: white;
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
   font-weight: bold;
-  z-index: 2500;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-  cursor: pointer;
+  z-index: 3000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
 .cancel-navigation:hover {
   background-color: #dc2626;
 }
 
-.leaflet-routing-container.leaflet-bar {
-  bottom: 40px !important;
-  right: 2px !important;
-}
-.leaflet-routing-container {
-  background-color: #f9f9f9 !important;
-  border: 1px solid #ccc !important;
-  border-radius: 8px;
-  padding: 10px;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  color: #333;
-  max-height: 300px;
-  overflow-y: auto;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-}
-.popup-navigate-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background-color: #f0f0f0;
-  border: 1px solid #333;
-  border-radius: 10px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: #111;
-  font-weight: 500;
-  margin-top: 6px;
-  transition: background-color 0.2s ease;
-}
-
-.popup-navigate-button:hover {
-  background-color: #e2e2e2;
-}
-
-.mobile-map-wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.mobile-map {
-  flex: 1;
-  position: relative;
-}
-
-.cancel-navigation {
-  position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #f44336;
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  z-index: 1000;
-}
-
-.fullscreen-toggle {
-  position: fixed;
-  bottom: 58vh;
-  right: 12px;
-  z-index: 2000;
-  background-color: white;
-  border: none;
-  border-radius: 50%;
-  padding: 8px;
-  width: 44px;
-  height: 44px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: bottom 0.3s ease;
-}
-
-.fullscreen .fullscreen-toggle {
-  bottom: 10px;
+.custom-routing-container {
+  position: fixed !important;
+  bottom: 140px !important;
+  right: 8px !important;
+  z-index: 3000 !important;
 }
