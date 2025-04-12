@@ -73,8 +73,9 @@ const SearchBar: React.FC<Props> = ({ onSearch }) => {
       </div>
 
       <button onClick={handleSearch} className="search-button">
-        🔍
-      </button>
+  <img src="/search-icon.png" alt="Search" style={{ width: "24px", height: "24px" }} />
+</button>
+
     </div>
   );
 };

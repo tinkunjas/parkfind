@@ -5,13 +5,12 @@ import {
   Marker,
   ZoomControl,
   useMap,
-  Popup,
+  Popup
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine";
 import "./MobileMapComponent.css";
-import MobileSearchHandler from "./MobileSearchHandler";
 import SearchBar from "./MobileSearchBar";
 import MobileSidebar from "./MobileSidebar";
 
@@ -83,6 +82,9 @@ const MobileMapComponent: React.FC = () => {
 
   const handleSearch = (lat: number, lon: number, name?: string) => {
     setSearchResult({ lat, lon, name });
+    if (mapRef.current) {
+      mapRef.current.setView([lat, lon], 15);
+    }
   };
 
   useEffect(() => {
@@ -101,17 +103,18 @@ const MobileMapComponent: React.FC = () => {
       }
 
       routingControlRef.current = L.Routing.control({
-        waypoints:[
-        L.latLng(userPosition[0], userPosition[1]), 
-        L.latLng(routeTarget[0], routeTarget[1])],
+        waypoints: [
+          L.latLng(userPosition[0], userPosition[1]),
+          L.latLng(routeTarget[0], routeTarget[1])
+        ],
         routeWhileDragging: false,
         show: false,
         addWaypoints: false,
         draggableWaypoints: false,
         createMarker: () => null,
         position: "bottomright",
-        lineOptions:{
-          styles:[
+        lineOptions: {
+          styles: [
             {
               color: "#2563eb",
               weight: 3.5,
@@ -144,112 +147,122 @@ const MobileMapComponent: React.FC = () => {
         console.error("Greška pri učitavanju parkinga:", error);
       }
     };
-  
+
     fetchMarkers();
     const interval = setInterval(fetchMarkers, 1000);
-  
     return () => clearInterval(interval);
   }, []);
-  
+
   return (
     <div className="mobile-container">
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
 
-      <div className={`mobile-map ${isFullscreen ? "fullscreen" : ""}`}>
-        <MapContainer
-          center={defaultPosition}
-          zoom={13}
-          zoomControl={false}
-          style={{ height: "100%", width: "100%" }}
-          maxBounds={[[42.3, 13.3], [46.9, 19.7]]}
-          maxBoundsViscosity={1.0}
-          ref={(ref) => {
-            if (ref) {
-              mapRef.current = ref;
-            }
-          }}
-        >
-          <MapResizer trigger={isFullscreen} />
+      <div className={`mobile-map-wrapper ${isFullscreen ? "fullscreen" : ""}`}>
+        <div className="mobile-map">
+          <MapContainer
+            center={defaultPosition}
+            zoom={13}
+            zoomControl={false}
+            style={{ height: "100%", width: "100%" }}
+            maxBounds={[[42.3, 13.3], [46.9, 19.7]]}
+            maxBoundsViscosity={1.0}
+            ref={(ref) => {
+              if (ref) mapRef.current = ref;
+            }}
+          >
+            <MapResizer trigger={isFullscreen} />
 
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; OpenStreetMap contributors'
-          />
-
-          <ZoomControl position="bottomleft" />
-
-          {userPosition && (
-            <Marker
-              position={userPosition}
-              icon={new L.Icon({
-                iconUrl: "https://cdn-icons-png.flaticon.com/512/3177/3177361.png",
-                iconSize: [35, 35],
-                iconAnchor: [17, 35],
-              })}
-            >
-              <Popup>📍 Tvoja lokacija</Popup>
-            </Marker>
-          )}
-
-          {markers.map((marker) => (
-            <Marker
-              key={marker.id}
-              position={[marker.lat, marker.lon]}
-              icon={zoneIcons[marker.zona]}
-            >
-              <Popup>
-                {marker.name} <br />
-                Zona: {marker.zona} <br />
-                Slobodna mjesta: {marker.slobodnaMjesta} <br />
-                <button
-                   className="popup-navigate-button"
-                   onClick={(e) => {
-                   e.stopPropagation(); 
-                   setIsFullscreen(true);
-                   setRouteTarget([marker.lat, marker.lon]);
-                  const map = mapRef.current;
-                  if (map) {
-                  map.closePopup(); 
-                  }
-                }}
-                >
-                  <img src="/directiongo2.png" alt="go" style={{ width: "22px", height: "22px" }} />
-                  Započni navigaciju
-                </button>
-              </Popup>
-            </Marker>
-          ))}
-
-          {searchResult && (
-            <MobileSearchHandler
-              lat={searchResult.lat}
-              lon={searchResult.lon}
-              name={searchResult.name}
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; OpenStreetMap contributors'
             />
-          )}
-        </MapContainer>
 
-        <SearchBar onSearch={handleSearch} />
+            <ZoomControl position="bottomleft" />
 
-        <button className="fullscreen-toggle" onClick={() => setIsFullscreen((prev) => !prev)}>
-          <img src="/fullscreen.png" alt="fullscreen" style={{ width: "22px", height: "22px" }} />
-        </button>
+            {userPosition && (
+              <Marker
+                position={userPosition}
+                icon={new L.Icon({
+                  iconUrl: "https://cdn-icons-png.flaticon.com/512/3177/3177361.png",
+                  iconSize: [35, 35],
+                  iconAnchor: [17, 35],
+                })}
+              >
+                <Popup offset={[0, -40]} closeButton={true}>
+                  Tvoja lokacija
+                </Popup>
+              </Marker>
+            )}
+
+            {markers.map((marker) => (
+              <Marker
+                key={marker.id}
+                position={[marker.lat, marker.lon]}
+                icon={zoneIcons[marker.zona]}
+              >
+                <Popup>
+                  {marker.name} <br />
+                  Zona: {marker.zona} <br />
+                  Slobodna mjesta: {marker.slobodnaMjesta} <br />
+                  <button
+                    className="popup-navigate-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsFullscreen(true);
+                      setRouteTarget([marker.lat, marker.lon]);
+                      mapRef.current?.closePopup();
+                    }}
+                  >
+                    <img src="/directiongo2.png" alt="go" style={{ width: "22px", height: "22px" }} />
+                    Započni navigaciju
+                  </button>
+                </Popup>
+              </Marker>
+            ))}
+
+            {searchResult && (
+              <Marker
+                position={[searchResult.lat, searchResult.lon]}
+                icon={new L.Icon({
+                  iconUrl: "/marker.png",
+                  iconSize: [40, 40],
+                  iconAnchor: [20, 40],
+                  popupAnchor: [0, -40],
+                })}
+              >
+                <Popup maxWidth={200}>
+                  {searchResult.name && searchResult.name.length > 60
+                    ? `${searchResult.name.substring(0, 60)}...`
+                    : searchResult.name || "Odabrana lokacija"}
+                </Popup>
+              </Marker>
+            )}
+          </MapContainer>
+
+          <SearchBar onSearch={handleSearch} />
+
+          {/* ✅ GUMB JE TU */}
+          <button className="fullscreen-toggle" onClick={() => setIsFullscreen((prev) => !prev)}>
+            <img src="/fullscreen.png" alt="fullscreen" style={{ width: "22px", height: "22px" }} />
+          </button>
+        </div>
+
+        {routeTarget && (
+          <button
+            className="cancel-navigation"
+            onClick={() => {
+              routingControlRef.current?.remove();
+              routingControlRef.current = null;
+              setRouteTarget(null);
+            }}
+          >
+            Prekini navigaciju
+          </button>
+        )}
       </div>
 
-      {routeTarget && (
-        <button
-          className="cancel-navigation"
-          onClick={() => {
-          routingControlRef.current?.remove();
-          routingControlRef.current = null;
-          setRouteTarget(null);
-      }}
-  >
-    Prekini navigaciju
-  </button>
-)}
-
+      {/* ✅ SAKRIVA SE AKO JE FULLSCREEN */}
       {!isFullscreen && (
         <div className="mobile-content">
           <h3 style={{ marginBottom: "1rem", color: "#000" }}>🅿️ Lista parkinga</h3>
