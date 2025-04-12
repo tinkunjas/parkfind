@@ -157,7 +157,7 @@ const MobileMapComponent: React.FC = () => {
     <div className="mobile-container">
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
-
+  
       <div className={`mobile-map-wrapper ${isFullscreen ? "fullscreen" : ""}`}>
         <div className="mobile-map">
           <MapContainer
@@ -172,14 +172,14 @@ const MobileMapComponent: React.FC = () => {
             }}
           >
             <MapResizer trigger={isFullscreen} />
-
+  
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; OpenStreetMap contributors'
             />
-
+  
             <ZoomControl position="bottomleft" />
-
+  
             {userPosition && (
               <Marker
                 position={userPosition}
@@ -194,7 +194,7 @@ const MobileMapComponent: React.FC = () => {
                 </Popup>
               </Marker>
             )}
-
+  
             {markers.map((marker) => (
               <Marker
                 key={marker.id}
@@ -220,7 +220,7 @@ const MobileMapComponent: React.FC = () => {
                 </Popup>
               </Marker>
             ))}
-
+  
             {searchResult && (
               <Marker
                 position={[searchResult.lat, searchResult.lon]}
@@ -239,30 +239,15 @@ const MobileMapComponent: React.FC = () => {
               </Marker>
             )}
           </MapContainer>
-
+  
           <SearchBar onSearch={handleSearch} />
-
-          {/* ✅ GUMB JE TU */}
+  
           <button className="fullscreen-toggle" onClick={() => setIsFullscreen((prev) => !prev)}>
             <img src="/fullscreen.png" alt="fullscreen" style={{ width: "22px", height: "22px" }} />
           </button>
         </div>
-
-        {routeTarget && (
-          <button
-            className="cancel-navigation"
-            onClick={() => {
-              routingControlRef.current?.remove();
-              routingControlRef.current = null;
-              setRouteTarget(null);
-            }}
-          >
-            Prekini navigaciju
-          </button>
-        )}
       </div>
-
-      {/* ✅ SAKRIVA SE AKO JE FULLSCREEN */}
+  
       {!isFullscreen && (
         <div className="mobile-content">
           <h3 style={{ marginBottom: "1rem", color: "#000" }}>🅿️ Lista parkinga</h3>
@@ -282,8 +267,21 @@ const MobileMapComponent: React.FC = () => {
           ))}
         </div>
       )}
+  
+      {routeTarget && (
+        <button
+          className="cancel-navigation"
+          onClick={() => {
+            routingControlRef.current?.remove();
+            routingControlRef.current = null;
+            setRouteTarget(null);
+          }}
+        >
+          Prekini navigaciju
+        </button>
+      )}
     </div>
   );
-};
+}  
 
 export default MobileMapComponent;
