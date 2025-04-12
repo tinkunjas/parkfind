@@ -229,10 +229,10 @@ const MobileMapComponent: React.FC = () => {
 
 <SearchBar onSearch={handleSearch} />
 
-{}
 <button className="fullscreen-toggle" onClick={() => setIsFullscreen(prev => !prev)}>
   <img src="/fullscreen.png" alt="fullscreen" />
 </button>
+
 
         </div>
 
