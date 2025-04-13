@@ -126,11 +126,16 @@ const MobileMapComponent: React.FC = () => {
         addWaypoints: false,
         draggableWaypoints: false,
         createMarker: () => null,
-        geocoder: null,
         lineOptions: {
-          styles: [{ color: "#2563eb", weight: 3.5, opacity: 0.9 }]
-        }        
+          styles: [{ color: "#2563eb", weight: 3.5, opacity: 0.9 }],
+          addWaypoints: false,
+          extendToWaypoints: true,
+          missingRouteTolerance: 10,
+          updateWhileIdle: false
+        },
+        containerClassName: "custom-routing-container",
       })
+      
       .on("routesfound", function (e: any) {
         const instructions = e.routes[0].instructions || e.routes[0].instructions || e.routes[0].segments?.flatMap((seg: any) => seg.steps) || [];
         if (instructions.length > 0) {
