@@ -299,6 +299,7 @@ if (container) {
     <div
   style={{ color: "#000", cursor: "pointer" }}
   onClick={() => {
+    mapRef.current?.closePopup();
     mapRef.current?.setView([marker.lat, marker.lon], 16);
   }}
 >
