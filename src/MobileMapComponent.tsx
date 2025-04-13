@@ -296,12 +296,18 @@ if (container) {
           <h3 style={{ marginBottom: "1rem", color: "#000" }}>🅿️ Lista parkinga</h3>
           {markers.map((marker) => (
   <div key={marker.id} className="parking-item">
-    <div style={{ color: "#000" }}>
-      <div style={{ fontWeight: "bold" }}>{marker.name}</div>
-      <div style={{ fontSize: "13px", color: "#444" }}>
-        Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
-      </div>
-    </div>
+    <div
+  style={{ color: "#000", cursor: "pointer" }}
+  onClick={() => {
+    mapRef.current?.setView([marker.lat, marker.lon], 16);
+  }}
+>
+  <div style={{ fontWeight: "bold" }}>{marker.name}</div>
+  <div style={{ fontSize: "13px", color: "#444" }}>
+    Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
+  </div>
+</div>
+
     <button
       className="navigate-button"
       onClick={() => {
