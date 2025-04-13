@@ -78,7 +78,6 @@ const MobileMapComponent: React.FC = () => {
   const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
   const [routeTarget, setRouteTarget] = useState<[number, number] | null>(null);
   const [currentInstruction, setCurrentInstruction] = useState<string | null>(null);
-  const [showInstructions, setShowInstructions] = useState(false);
 
 
   const routingControlRef = useRef<any>(null);
