@@ -77,8 +77,12 @@ const MobileMapComponent: React.FC = () => {
   const [searchResult, setSearchResult] = useState<{ lat: number; lon: number; name?: string } | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
   const [routeTarget, setRouteTarget] = useState<[number, number] | null>(null);
-  const mapRef = useRef<L.Map | null>(null);
+  const [currentInstruction, setCurrentInstruction] = useState<string | null>(null);
+  const [showInstructions, setShowInstructions] = useState(false);
+
+
   const routingControlRef = useRef<any>(null);
+  const mapRef = useRef<L.Map | null>(null);
 
   const handleSearch = (lat: number, lon: number, name?: string) => {
     setSearchResult({ lat, lon, name });
@@ -90,6 +94,22 @@ const MobileMapComponent: React.FC = () => {
       (pos) => setUserPosition([pos.coords.latitude, pos.coords.longitude]),
       (err) => console.error("Greška pri dohvaćanju lokacije:", err)
     );
+  }, []);
+
+  useEffect(() => {
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        setUserPosition([pos.coords.latitude, pos.coords.longitude]);
+      },
+      (err) => console.error("Greška pri praćenju lokacije:", err),
+      {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 5000
+      }
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
   useEffect(() => {
@@ -106,14 +126,28 @@ const MobileMapComponent: React.FC = () => {
         addWaypoints: false,
         draggableWaypoints: false,
         createMarker: () => null,
-        containerClassName: "custom-routing-container", // Key line
-        position: "bottomright",
+        geocoder: null,
         lineOptions: {
-          styles: [
-            { color: "#2563eb", weight: 3.5, opacity: 0.9 }
-          ]
+          styles: [{ color: "#2563eb", weight: 3.5, opacity: 0.9 }]
+        }        
+      })
+      .on("routesfound", function (e: any) {
+        const instructions = e.routes[0].instructions || e.routes[0].instructions || e.routes[0].segments?.flatMap((seg: any) => seg.steps) || [];
+        if (instructions.length > 0) {
+          setCurrentInstruction(instructions[0].instruction || instructions[0].text);
         }
-      }).addTo(mapRef.current);
+      })
+      .on("routeselected", function (e: any) {
+        const steps = e.route.instructions || e.route.segments?.flatMap((s: any) => s.steps) || [];
+        if (steps.length > 0) {
+          setCurrentInstruction(steps[0].instruction || steps[0].text);
+        }
+      })
+      .addTo(mapRef.current);
+      const container = routingControlRef.current.getContainer();
+if (container) {
+  container.style.display = "none";
+}
     }
   }, [routeTarget, userPosition]);
 
@@ -227,22 +261,29 @@ const MobileMapComponent: React.FC = () => {
             )}
           </MapContainer>
 
-<SearchBar onSearch={handleSearch} />
-<button className={`fullscreen-toggle ${isFullscreen ? 'fullscreen-active' : 'above-list'}`} onClick={() => setIsFullscreen(prev => !prev)}>
-  <img src="/fullscreen.png" alt="fullscreen" />
-</button>
+          <SearchBar onSearch={handleSearch} />
+          {currentInstruction && (
+            <div className="navigation-instruction">
+              <p>{currentInstruction}</p>
+            </div>
+          )}
 
-
-
+          <button
+            className={`fullscreen-toggle ${isFullscreen ? 'fullscreen-active' : 'above-list'}`}
+            onClick={() => setIsFullscreen(prev => !prev)}
+          >
+            <img src="/fullscreen.png" alt="fullscreen" />
+          </button>
         </div>
 
         {routeTarget && (
           <button
-            className="cancel-navigation"
+            className={`cancel-navigation ${isFullscreen ? "on-top" : "behind-content"}`}
             onClick={() => {
               routingControlRef.current?.remove();
               routingControlRef.current = null;
               setRouteTarget(null);
+              setCurrentInstruction(null);
             }}
           >
             Prekini navigaciju
