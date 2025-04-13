@@ -22,7 +22,7 @@ const croatiaBounds: [[number, number], [number, number]] = [
 ];
 
 const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-  const R = 6371e3; // meters
+  const R = 6371e3;
   const φ1 = lat1 * Math.PI / 180;
   const φ2 = lat2 * Math.PI / 180;
   const Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -100,7 +100,8 @@ const MobileMapComponent: React.FC = () => {
   const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
   const [routeTarget, setRouteTarget] = useState<[number, number] | null>(null);
   const [currentInstruction, setCurrentInstruction] = useState<string | null>(null);
-
+  const [filterZona, setFilterZona] = useState<number | null>(null);
+  const [filterMjesta, setFilterMjesta] = useState<number | null>(null);
 
   const routingControlRef = useRef<any>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -319,8 +320,38 @@ if (container) {
 
       {!isFullscreen && (
   <div className="mobile-content">
-    <h3 style={{ marginBottom: "1rem", color: "#000" }}>🅿️ Lista parkinga</h3>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <h3 style={{ marginBottom: "1rem", color: "#000" }}>🅿️ Lista parkinga</h3>
+      <div style={{ display: "flex", gap: "8px" }}>
+        <select
+          value={filterZona ?? ""}
+          onChange={(e) => setFilterZona(e.target.value ? Number(e.target.value) : null)}
+        >
+          <option value="">Sve zone</option>
+          <option value="1">Zona 1</option>
+          <option value="2">Zona 2</option>
+          <option value="3">Zona 3</option>
+          <option value="4">Zona 4</option>
+        </select>
+
+        <select
+          value={filterMjesta ?? ""}
+          onChange={(e) => setFilterMjesta(e.target.value ? Number(e.target.value) : null)}
+        >
+          <option value="">Bilo koliko mjesta</option>
+          <option value="1">Više od 0</option>
+          <option value="5">Više od 5</option>
+          <option value="10">Više od 10</option>
+        </select>
+      </div>
+    </div>
+
     {[...markers]
+      .filter(marker => {
+        if (filterZona !== null && marker.zona !== filterZona) return false;
+        if (filterMjesta !== null && marker.slobodnaMjesta <= filterMjesta) return false;
+        return true;
+      })
       .sort((a, b) => {
         if (!userPosition) return 0;
         const distA = getDistance(userPosition[0], userPosition[1], a.lat, a.lon);
@@ -341,7 +372,6 @@ if (container) {
               Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
             </div>
           </div>
-
           <button
             className="navigate-button"
             onClick={() => {
@@ -354,9 +384,9 @@ if (container) {
         </div>
       ))}
   </div>
-)}
-    </div>
-  );
+  )}
+</div>
+);
 };
 
 export default MobileMapComponent;
