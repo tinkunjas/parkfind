@@ -16,6 +16,27 @@ import MobileSidebar from "./MobileSidebar";
 
 const defaultPosition: [number, number] = [45.815399, 15.966568];
 
+const croatiaBounds: [[number, number], [number, number]] = [
+  [42.3, 13.3],
+  [46.6, 19.5],
+];
+
+const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  const R = 6371e3; // meters
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ / 2) ** 2 +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+};
+
+
 interface MarkerData {
   id: number;
   lat: number;
@@ -195,7 +216,7 @@ if (container) {
             zoom={13}
             zoomControl={false}
             style={{ height: "100%", width: "100%" }}
-            maxBounds={[[42.3, 13.3], [46.9, 19.7]]}
+            maxBounds={croatiaBounds}
             maxBoundsViscosity={1.0}
             ref={mapRef}
           >
@@ -297,36 +318,43 @@ if (container) {
       </div>
 
       {!isFullscreen && (
-        <div className="mobile-content">
-          <h3 style={{ marginBottom: "1rem", color: "#000" }}>🅿️ Lista parkinga</h3>
-          {markers.map((marker) => (
-  <div key={marker.id} className="parking-item">
-    <div
-  style={{ color: "#000", cursor: "pointer" }}
-  onClick={() => {
-    mapRef.current?.closePopup();
-    mapRef.current?.setView([marker.lat, marker.lon], 16);
-  }}
->
-  <div style={{ fontWeight: "bold" }}>{marker.name}</div>
-  <div style={{ fontSize: "13px", color: "#444" }}>
-    Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
-  </div>
-</div>
+  <div className="mobile-content">
+    <h3 style={{ marginBottom: "1rem", color: "#000" }}>🅿️ Lista parkinga</h3>
+    {[...markers]
+      .sort((a, b) => {
+        if (!userPosition) return 0;
+        const distA = getDistance(userPosition[0], userPosition[1], a.lat, a.lon);
+        const distB = getDistance(userPosition[0], userPosition[1], b.lat, b.lon);
+        return distA - distB;
+      })
+      .map((marker) => (
+        <div key={marker.id} className="parking-item">
+          <div
+            style={{ color: "#000", cursor: "pointer" }}
+            onClick={() => {
+              mapRef.current?.closePopup();
+              mapRef.current?.setView([marker.lat, marker.lon], 16);
+            }}
+          >
+            <div style={{ fontWeight: "bold" }}>{marker.name}</div>
+            <div style={{ fontSize: "13px", color: "#444" }}>
+              Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
+            </div>
+          </div>
 
-    <button
-      className="navigate-button"
-      onClick={() => {
-        setIsFullscreen(true);
-        setRouteTarget([marker.lat, marker.lon]);
-      }}
-    >
-      <img src="/directiongo2.png" alt="go" />
-    </button>
-  </div>
-))}
+          <button
+            className="navigate-button"
+            onClick={() => {
+              setIsFullscreen(true);
+              setRouteTarget([marker.lat, marker.lon]);
+            }}
+          >
+            <img src="/directiongo2.png" alt="go" />
+          </button>
         </div>
-      )}
+      ))}
+  </div>
+)}
     </div>
   );
 };
