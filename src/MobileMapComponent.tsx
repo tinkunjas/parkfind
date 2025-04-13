@@ -70,6 +70,7 @@ const MapResizer = ({ trigger }: { trigger: boolean }) => {
   return null;
 };
 
+
 const MobileMapComponent: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -294,19 +295,24 @@ if (container) {
         <div className="mobile-content">
           <h3 style={{ marginBottom: "1rem", color: "#000" }}>🅿️ Lista parkinga</h3>
           {markers.map((marker) => (
-            <div key={marker.id} className="parking-item">
-              <span style={{ color: "#000" }}>{marker.name}</span>
-              <button
-                className="navigate-button"
-                onClick={() => {
-                  setIsFullscreen(true);
-                  setRouteTarget([marker.lat, marker.lon]);
-                }}
-              >
-                <img src="/directiongo2.png" alt="go" />
-              </button>
-            </div>
-          ))}
+  <div key={marker.id} className="parking-item">
+    <div style={{ color: "#000" }}>
+      <div style={{ fontWeight: "bold" }}>{marker.name}</div>
+      <div style={{ fontSize: "13px", color: "#444" }}>
+        Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
+      </div>
+    </div>
+    <button
+      className="navigate-button"
+      onClick={() => {
+        setIsFullscreen(true);
+        setRouteTarget([marker.lat, marker.lon]);
+      }}
+    >
+      <img src="/directiongo2.png" alt="go" />
+    </button>
+  </div>
+))}
         </div>
       )}
     </div>
