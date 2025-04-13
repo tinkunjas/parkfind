@@ -21,19 +21,28 @@
 
 .fullscreen-toggle {
   position: absolute;
-  bottom: 52vh;
-  right: 12px;
   z-index: 1300;
   background-color: white;
   border: none;
   border-radius: 12px;
   padding: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 .fullscreen-toggle img {
   width: 22px;
   height: 22px;
+}
+
+.mobile-map-wrapper .fullscreen-toggle {
+  bottom: 56vh;
+  right: 16px;
+}
+
+.mobile-map-wrapper.fullscreen .fullscreen-toggle {
+  bottom: 14px;
+  right: 16px;
 }
 
 .leaflet-routing-container.leaflet-bar {

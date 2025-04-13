@@ -149,7 +149,7 @@ const MobileMapComponent: React.FC = () => {
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
 
-      <div className="mobile-map-wrapper">
+      <div className={`mobile-map-wrapper ${isFullscreen ? 'fullscreen' : ''}`}>
         <div className="mobile-map">
           <MapContainer
             center={defaultPosition}
@@ -228,10 +228,10 @@ const MobileMapComponent: React.FC = () => {
           </MapContainer>
 
 <SearchBar onSearch={handleSearch} />
-
-<button className="fullscreen-toggle" onClick={() => setIsFullscreen(prev => !prev)}>
+<button className={`fullscreen-toggle ${isFullscreen ? 'fullscreen-active' : 'above-list'}`} onClick={() => setIsFullscreen(prev => !prev)}>
   <img src="/fullscreen.png" alt="fullscreen" />
 </button>
+
 
 
         </div>
