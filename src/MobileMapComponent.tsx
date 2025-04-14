@@ -328,10 +328,10 @@ if (container) {
           onChange={(e) => setFilterZona(e.target.value ? Number(e.target.value) : null)}
         >
           <option value="">Sve zone</option>
-          <option value="1">Zona 1</option>
-          <option value="2">Zona 2</option>
-          <option value="3">Zona 3</option>
-          <option value="4">Zona 4</option>
+          <option value="1" className="prva">Zona 1</option>
+          <option value="2" className="druga">Zona 2</option>
+          <option value="3" className="treca">Zona 3</option>
+          <option value="4" className="cetvrta">Zona 4</option>
         </select>
 
         <select
