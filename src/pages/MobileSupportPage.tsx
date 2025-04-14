@@ -1,22 +1,44 @@
 import React, { useState } from "react";
 import MobileSidebar from "../MobileSidebar";
+import "./pageStyles.css";
 
-const SupportPage: React.FC = () => {
+const MobileSupportPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div style={{ height: "100vh", position: "relative" }}>
+    <div className="page-container">
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
         ☰
       </button>
 
-      <div style={{ padding: "2rem", marginLeft: sidebarOpen ? "200px" : "0" }}>
-        <h1>📞 Podrška</h1>
-        <p>Kontakt forma, email i ostalo...</p>
+      <div className={`page-content ${sidebarOpen ? "shifted" : ""}`}>
+        <h1 className="page-title"> Podrška </h1>
+        <p className="page-subtitle">
+          Imaš pitanje? Pošalji nam poruku putem forme ispod ili doniraj ako želiš podržati razvoj.
+        </p>
+
+        <div className="support-form">
+          <label>Ime:</label>
+          <input className="support-input" type="text" placeholder="Unesi ime" />
+
+          <label>Email:</label>
+          <input className="support-input" type="email" placeholder="Unesi email" />
+
+          <label>Poruka:</label>
+          <textarea className="support-textarea" placeholder="Tvoja poruka..." />
+
+          <button className="support-button">Pošalji</button>
+        </div>
+
+        <div className="donation-section">
+          <p>💰 <strong>Želiš podržati projekt?</strong></p>
+          <button className="donation-button">DONIRAJ!</button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SupportPage;
+export default MobileSupportPage;
