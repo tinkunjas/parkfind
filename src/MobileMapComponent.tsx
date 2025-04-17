@@ -238,6 +238,11 @@ const handleChangeMapStyle = () => {
 
   return (
     <div className="mobile-container">
+      {(!userPosition || markers.length === 0) && (
+  <div className="loading-overlay">
+    <div className="spinner" />
+  </div>
+)}
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
       <button className="layer-style-button" onClick={handleChangeMapStyle}>
