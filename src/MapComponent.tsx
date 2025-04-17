@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -11,7 +11,6 @@ import SearchBar from "./SearchBar";
 import Sidebar from "./Sidebar";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import Filter from "./Filter";
 
 const defaultPosition: [number, number] = [45.815399, 15.966568];
 
@@ -20,9 +19,7 @@ const croatiaBounds: [[number, number], [number, number]] = [
   [46.6, 19.5],
 ];
 
-const UserLocationMarker = () => {
-  const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
-
+const UserLocationMarker = ({ setUserPosition }: { setUserPosition: (pos: [number, number]) => void }) => {
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -32,24 +29,10 @@ const UserLocationMarker = () => {
         console.error("Greška pri dohvaćanju lokacije:", error);
       }
     );
-  }, []);
+  }, [setUserPosition]);
 
-  if (!userPosition) return null;
-
-  const userIcon = new L.Icon({
-    iconUrl: "/marker.png",
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -40],
-  });
-
-  return (
-    <Marker position={userPosition} icon={userIcon}>
-      <Popup>Tvoja trenutna lokacija</Popup>
-    </Marker>
-  );
+  return null;
 };
-
 
 const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string }) => {
   const map = useMap();
@@ -79,7 +62,6 @@ const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string 
   return null;
 };
 
-
 interface MarkerData {
   id: number;
   position: [number, number];
@@ -90,7 +72,7 @@ interface MarkerData {
 
 const zoneIcons: Record<number, L.Icon> = {
   1: new L.Icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+    iconUrl: "/1.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -98,7 +80,7 @@ const zoneIcons: Record<number, L.Icon> = {
     shadowSize: [41, 41],
   }),
   2: new L.Icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
+    iconUrl: "/2.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -106,7 +88,7 @@ const zoneIcons: Record<number, L.Icon> = {
     shadowSize: [41, 41],
   }),
   3: new L.Icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+    iconUrl: "/3.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -114,7 +96,7 @@ const zoneIcons: Record<number, L.Icon> = {
     shadowSize: [41, 41],
   }),
   4: new L.Icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
+    iconUrl: "/4.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -134,6 +116,11 @@ const MapComponent: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedZone, setSelectedZone] = useState<number | null>(null);
+  const [slobodnaMjestaFilter, setSlobodnaMjestaFilter] = useState<number | null>(null);
+  const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
+  const lastOpenedPopupRef = useRef<L.Popup | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRefs = useRef<Record<number, L.Marker>>({});
 
   const fetchMarkers = async () => {
     try {
@@ -177,14 +164,93 @@ const MapComponent: React.FC = () => {
   };
 
   const filtriraniMarkeri = markers.filter((m) =>
-    selectedZone ? m.zona === selectedZone : true
+    (selectedZone ? m.zona === selectedZone : true) &&
+    (slobodnaMjestaFilter !== null ? m.slobodnaMjesta > slobodnaMjestaFilter : true)
   );
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
       <SearchBar onSearch={handleSearch} />
 
-      <Filter selectedZone={selectedZone} setSelectedZone={setSelectedZone} />
+      <div
+        style={{
+          position: "absolute",
+          top: "60px",
+          left: "10px",
+          width: "300px",
+          maxHeight: "70vh",
+          overflowY: "auto",
+          zIndex: 1000,
+          backgroundColor: "white",
+          borderRadius: "10px",
+          padding: "12px",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+        }}
+      >
+        <h3 style={{ marginBottom: "1rem", color: "#111" }}>🅿️ Lista parkinga</h3>
+
+        <div style={{ marginBottom: "12px", display: "flex", gap: "8px" }}>
+          <select
+            value={selectedZone ?? ""}
+            onChange={(e) =>
+              setSelectedZone(e.target.value ? Number(e.target.value) : null)
+            }
+            style={{ flex: 1 }}
+          >
+            <option value="">Sve zone</option>
+            <option value="1">Zona 1</option>
+            <option value="2">Zona 2</option>
+            <option value="3">Zona 3</option>
+            <option value="4">Zona 4</option>
+          </select>
+
+          <select
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "") {
+                setSlobodnaMjestaFilter(null);
+              } else {
+                setSlobodnaMjestaFilter(Number(val));
+              }
+            }}
+            style={{ flex: 1 }}
+          >
+            <option value="">Slobodna mjesta</option>
+            <option value="5">Više od 5</option>
+            <option value="10">Više od 10</option>
+          </select>
+        </div>
+
+        {filtriraniMarkeri.map((marker) => (
+          <div
+            key={marker.id}
+            style={{
+              backgroundColor: "#f9fafb",
+              padding: "8px",
+              marginBottom: "6px",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              const map = mapRef.current;
+              if (map) {
+                const [lat, lon] = marker.position;
+                map.setView([lat, lon], 16, { animate: true });
+                const handleMoveEnd = () => {
+                  markerRefs.current[marker.id]?.openPopup();
+                  map.off("moveend", handleMoveEnd);
+                };
+                map.on("moveend", handleMoveEnd);
+              }
+            }}
+          >
+            <div style={{ fontWeight: "bold" }}>{marker.popupText}</div>
+            <div style={{ fontSize: "13px", color: "#444" }}>
+              Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
+            </div>
+          </div>
+        ))}
+      </div>
 
       <Sidebar
         isOpen={sidebarOpen}
@@ -206,17 +272,67 @@ const MapComponent: React.FC = () => {
         maxBoundsViscosity={1.0}
         minZoom={8}
         zoomControl={false}
+        ref={(mapInstance) => {
+          if (mapInstance) mapRef.current = mapInstance;
+        }}
       >
         <ZoomControl position="bottomleft" />
+
         <TileLayer
           url={tileLayerUrl}
           attribution='&copy; <a href="https://www.esri.com/">Esri</a> / <a href="https://www.openstreetmap.org/">OSM</a> / <a href="https://carto.com/">CARTO</a>'
         />
 
-        <UserLocationMarker />
+        <UserLocationMarker setUserPosition={setUserPosition} />
+
+        <button
+          style={{
+            position: "absolute",
+    bottom: "100px",
+    left: "12px",
+    zIndex: 1000,
+    background: "#fff",
+    borderRadius: "50%",
+    width: "42px",
+    height: "42px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 0,
+          }}
+          onClick={() => {
+            if (userPosition && mapRef.current) {
+              mapRef.current.setView(userPosition, 16);
+              if (lastOpenedPopupRef.current) {
+                lastOpenedPopupRef.current.close();
+                lastOpenedPopupRef.current = null;
+              }
+            }
+          }}
+        >
+          <img src="/center.png" alt="Centar" style={{ width: 22, height: 22 }} />
+        </button>
 
         {filtriraniMarkeri.map((marker) => (
-          <Marker key={marker.id} position={marker.position} icon={zoneIcons[marker.zona]}>
+          <Marker
+            key={marker.id}
+            position={marker.position}
+            icon={zoneIcons[marker.zona]}
+            ref={(ref) => {
+              if (ref) markerRefs.current[marker.id] = ref;
+            }}
+            eventHandlers={{
+              popupopen: (e) => {
+                if (lastOpenedPopupRef.current && lastOpenedPopupRef.current !== e.popup) {
+                  lastOpenedPopupRef.current.close();
+                }
+                lastOpenedPopupRef.current = e.popup;
+              },
+            }}
+          >
             <Popup>
               {marker.popupText} <br />
               Zona: {marker.zona} <br />

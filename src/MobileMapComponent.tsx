@@ -55,7 +55,7 @@ interface MarkerData {
 
 const zoneIcons: Record<number, L.Icon> = {
   1: new L.Icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+    iconUrl: "/1.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -63,7 +63,7 @@ const zoneIcons: Record<number, L.Icon> = {
     shadowSize: [41, 41],
   }),
   2: new L.Icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
+    iconUrl: "/2.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -71,7 +71,7 @@ const zoneIcons: Record<number, L.Icon> = {
     shadowSize: [41, 41],
   }),
   3: new L.Icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+    iconUrl: "/3.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -79,7 +79,7 @@ const zoneIcons: Record<number, L.Icon> = {
     shadowSize: [41, 41],
   }),
   4: new L.Icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
+    iconUrl: "/4.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
