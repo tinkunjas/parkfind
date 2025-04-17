@@ -3,7 +3,6 @@ import {
   MapContainer,
   TileLayer,
   Marker,
-  ZoomControl,
   useMap,
   Popup
 } from "react-leaflet";
@@ -137,9 +136,13 @@ const handleChangeMapStyle = () => {
         setUserPosition(position);
         mapRef.current?.setView(position, 15);
       },
-      (err) => console.error("Greška pri dohvaćanju lokacije:", err)
+      (err) => {
+        console.error("Greška pri dohvaćanju lokacije:", err);
+        setUserPosition(defaultPosition);
+      }
     );
   }, []);
+  
 
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
