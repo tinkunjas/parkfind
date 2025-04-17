@@ -236,13 +236,16 @@ const interval = setInterval(fetchMarkers, 3000);
     return () => clearInterval(interval);
   }, []);
 
+    if (!userPosition || markers.length === 0) {
+      return (
+        <div className="loading-screen">
+          <p>Učitavanje karte...</p>
+        </div>
+      );
+    }
+
   return (
     <div className="mobile-container">
-      {(!userPosition || markers.length === 0) && (
-  <div className="loading-overlay">
-    <div className="spinner" />
-  </div>
-)}
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
       <button className="layer-style-button" onClick={handleChangeMapStyle}>
@@ -453,52 +456,53 @@ const interval = setInterval(fetchMarkers, 3000);
         return distA - distB;
       })
       .map((marker) => (
-        <div key={marker.id} className="parking-item">
-          <div
-  style={{ color: "#000", cursor: "pointer" }}
-  onClick={() => {
-    const offsetLat = marker.lat - 0.0008;
+        <div
+  key={marker.id}
+  className="parking-item"
+  style={{ cursor: "pointer" }}
+  onClick={(e) => {
+    // ignoriraj klik ako je kliknut unutar gumba
+    if ((e.target as HTMLElement).closest(".navigate-button")) return;
 
+    const offsetLat = marker.lat - 0.0008;
     if (mapRef.current) {
       const mapInstance = mapRef.current;
-
       mapInstance.closePopup();
-
-      mapInstance.setView([offsetLat, marker.lon], 16, {
-        animate: true,
-      });
+      mapInstance.setView([offsetLat, marker.lon], 16, { animate: true });
 
       const handleMoveEnd = () => {
         markerRefs.current[marker.id]?.openPopup();
-        mapInstance.off("moveend", handleMoveEnd)
+        mapInstance.off("moveend", handleMoveEnd);
       };
 
       mapInstance.on("moveend", handleMoveEnd);
     }
   }}
 >
-  <div style={{ fontWeight: "bold" }}>{marker.name}</div>
-  <div style={{ fontSize: "13px", color: "#444" }}>
-    Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
+  <div>
+    <div style={{ fontWeight: "bold", color: "#000" }}>{marker.name}</div>
+    <div style={{ fontSize: "13px", color: "#444" }}>
+      Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
+    </div>
   </div>
-</div>
 
-          <button
-            className="navigate-button"
-            onClick={() => {
-              setIsFullscreen(true);
-              setRouteTarget([marker.lat, marker.lon]);
-              mapRef.current?.closePopup();
-            }}
-          >
-            <img src="/directiongo2.png" alt="go" />
-          </button>
-        </div>
+  <button
+    className="navigate-button"
+    onClick={(e) => {
+      e.stopPropagation();
+      setIsFullscreen(true);
+      setRouteTarget([marker.lat, marker.lon]);
+      mapRef.current?.closePopup();
+    }}
+  >
+    <img src="/directiongo2.png" alt="go" />
+  </button>
+  </div>
       ))}
+      </div>
+    )}
   </div>
-  )}
-</div>
-);
-};
-
+  );
+  };
+  
 export default MobileMapComponent;
