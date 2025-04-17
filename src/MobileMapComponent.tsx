@@ -438,7 +438,7 @@ const interval = setInterval(fetchMarkers, 3000);
           value={filterMjesta ?? ""}
           onChange={(e) => setFilterMjesta(e.target.value ? Number(e.target.value) : null)}
         >
-          <option value="">Sva slobodna mjesta</option>
+          <option value="">Slobodna mjesta</option>
           <option value="1">Više od 5</option>
           <option value="5">Više od 10</option>
         </select>
