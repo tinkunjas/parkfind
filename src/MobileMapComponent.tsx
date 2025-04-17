@@ -239,7 +239,7 @@ const interval = setInterval(fetchMarkers, 3000);
     if (!userPosition || markers.length === 0) {
       return (
         <div className="loading-screen">
-          <p>Učitavanje karte...</p>
+          <img src="/spinner.png" alt="Učitavanje..." className="spinner" />
         </div>
       );
     }
@@ -257,15 +257,18 @@ const interval = setInterval(fetchMarkers, 3000);
         <div className="mobile-map">
         {userPosition && (
   <button
-    className="center-user-button"
+    className={`center-user-button ${isFullscreen ? 'center-fullscreen' : 'center-above-list'}`}
     onClick={() => {
       const offsetLat = userPosition[0] - 0.0012;
       mapRef.current?.setView([offsetLat, userPosition[1]], 16, { animate: true });
+
+      mapRef.current?.closePopup();
     }}
   >
     <img src="/center.png" alt="centar" />
   </button>
 )}
+
 
           <MapContainer
             center={defaultPosition}
