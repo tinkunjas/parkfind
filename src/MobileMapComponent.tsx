@@ -21,6 +21,14 @@ const croatiaBounds: [[number, number], [number, number]] = [
   [46.6, 19.5],
 ];
 
+const tileLayers = {
+  osm: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  satellite: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+};
+
+
+
 const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371e3;
   const φ1 = lat1 * Math.PI / 180;
@@ -102,6 +110,17 @@ const MobileMapComponent: React.FC = () => {
   const [currentInstruction, setCurrentInstruction] = useState<string | null>(null);
   const [filterZona, setFilterZona] = useState<number | null>(null);
   const [filterMjesta, setFilterMjesta] = useState<number | null>(null);
+  const [travelTime, setTravelTime] = useState<number | null>(null);
+const [travelDistance, setTravelDistance] = useState<number | null>(null);
+const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
+const markerRefs = useRef<Record<number, L.Marker>>({});
+
+
+const handleChangeMapStyle = () => {
+  if (tileStyle === "osm") setTileStyle("satellite");
+  else if (tileStyle === "satellite") setTileStyle("dark");
+  else setTileStyle("osm");
+};
 
   const routingControlRef = useRef<any>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -113,7 +132,11 @@ const MobileMapComponent: React.FC = () => {
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
-      (pos) => setUserPosition([pos.coords.latitude, pos.coords.longitude]),
+      (pos) => {
+        const position: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        setUserPosition(position);
+        mapRef.current?.setView(position, 15);
+      },
       (err) => console.error("Greška pri dohvaćanju lokacije:", err)
     );
   }, []);
@@ -135,48 +158,53 @@ const MobileMapComponent: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (routeTarget && userPosition && mapRef.current) {
-      routingControlRef.current?.remove();
-
+    if (!mapRef.current || !userPosition || !routeTarget) return;
+  
+    if (routingControlRef.current) {
+      routingControlRef.current.setWaypoints([
+        L.latLng(userPosition[0], userPosition[1]),
+        L.latLng(routeTarget[0], routeTarget[1]),
+      ]);
+    } else {
       routingControlRef.current = L.Routing.control({
         waypoints: [
           L.latLng(userPosition[0], userPosition[1]),
           L.latLng(routeTarget[0], routeTarget[1]),
         ],
         routeWhileDragging: false,
-        show: false,
         addWaypoints: false,
         draggableWaypoints: false,
+        fitSelectedRoutes: false,
+        show: false,
         createMarker: () => null,
         lineOptions: {
-          styles: [{ color: "#2563eb", weight: 3.5, opacity: 0.9 }],
-          addWaypoints: false,
-          extendToWaypoints: true,
-          missingRouteTolerance: 10,
-          updateWhileIdle: false
+          styles: [{ color: "#2563eb", weight: 4, opacity: 1 }],
         },
         containerClassName: "custom-routing-container",
       })
-      
-      .on("routesfound", function (e: any) {
-        const instructions = e.routes[0].instructions || e.routes[0].instructions || e.routes[0].segments?.flatMap((seg: any) => seg.steps) || [];
-        if (instructions.length > 0) {
-          setCurrentInstruction(instructions[0].instruction || instructions[0].text);
-        }
-      })
-      .on("routeselected", function (e: any) {
-        const steps = e.route.instructions || e.route.segments?.flatMap((s: any) => s.steps) || [];
-        if (steps.length > 0) {
-          setCurrentInstruction(steps[0].instruction || steps[0].text);
-        }
-      })
-      .addTo(mapRef.current);
+        .on("routesfound", function (e: any) {
+          const summary = e.routes[0].summary;
+          const instructions = e.routes[0].instructions || e.routes[0].segments?.flatMap((seg: any) => seg.steps) || [];
+  
+          setTravelTime(summary.totalTime);
+          setTravelDistance(summary.totalDistance);
+  
+          if (instructions.length > 0) {
+            setCurrentInstruction(instructions[0].instruction || instructions[0].text);
+          }
+        })
+        .on("routeselected", function (e: any) {
+          const steps = e.route.instructions || e.route.segments?.flatMap((s: any) => s.steps) || [];
+          if (steps.length > 0) {
+            setCurrentInstruction(steps[0].instruction || steps[0].text);
+          }
+        })
+        .addTo(mapRef.current);
+  
       const container = routingControlRef.current.getContainer();
-if (container) {
-  container.style.display = "none";
-}
+      if (container) container.style.display = "none";
     }
-  }, [routeTarget, userPosition]);
+  }, [routeTarget, userPosition]);  
 
   useEffect(() => {
     const fetchMarkers = async () => {
@@ -209,9 +237,25 @@ if (container) {
     <div className="mobile-container">
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
+      <button className="layer-style-button" onClick={handleChangeMapStyle}>
+      <img src="/layer.png" alt="layer" />
+</button>
+
 
       <div className={`mobile-map-wrapper ${isFullscreen ? 'fullscreen' : ''}`}>
         <div className="mobile-map">
+        {userPosition && (
+  <button
+    className="center-user-button"
+    onClick={() => {
+      const offsetLat = userPosition[0] - 0.0012;
+      mapRef.current?.setView([offsetLat, userPosition[1]], 16, { animate: true });
+    }}
+  >
+    <img src="/center.png" alt="centar" />
+  </button>
+)}
+
           <MapContainer
             center={defaultPosition}
             zoom={13}
@@ -223,10 +267,9 @@ if (container) {
           >
             <MapResizer trigger={isFullscreen} />
             <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; OpenStreetMap contributors'
-            />
-            <ZoomControl position="bottomleft" />
+  url={tileLayers[tileStyle]}
+  attribution='&copy; OpenStreetMap contributors'
+/>
 
             {userPosition && (
               <Marker
@@ -242,65 +285,108 @@ if (container) {
                 </Popup>
               </Marker>
             )}
+{markers
+  .filter(marker => {
+    if (filterZona !== null && marker.zona !== filterZona) return false;
+    if (filterMjesta !== null && marker.slobodnaMjesta <= filterMjesta) return false;
+    return true;
+  })
+  .map((marker) => (
+    <Marker
+  key={marker.id}
+  position={[marker.lat, marker.lon]}
+  icon={zoneIcons[marker.zona]}
+  ref={(ref) => {
+    if (ref) markerRefs.current[marker.id] = ref;
+  }}
+>
 
-            {markers.map((marker) => (
-              <Marker
-                key={marker.id}
-                position={[marker.lat, marker.lon]}
-                icon={zoneIcons[marker.zona]}
-              >
-                <Popup>
-                  {marker.name}<br />
-                  Zona: {marker.zona}<br />
-                  Slobodna mjesta: {marker.slobodnaMjesta}<br />
-                  <button
-                    className="popup-navigate-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsFullscreen(true);
-                      setRouteTarget([marker.lat, marker.lon]);
-                      mapRef.current?.closePopup();
-                    }}
-                  >
-                    <img src="/directiongo2.png" alt="go" style={{ width: "22px", height: "22px" }} />
-                    Započni navigaciju
-                  </button>
-                </Popup>
-              </Marker>
-            ))}
+      <Popup>
+        {marker.name}<br />
+        Zona: {marker.zona}<br />
+        Slobodna mjesta: {marker.slobodnaMjesta}<br />
+        <button
+          className="popup-navigate-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsFullscreen(true);
+            setRouteTarget([marker.lat, marker.lon]);
+            mapRef.current?.closePopup();
+          
+            if (userPosition) {
+              const offsetLat = userPosition[0] - 0.0012;
+              mapRef.current?.setView([offsetLat, userPosition[1]], 16, { animate: true });
+            }
+          }}
+          
+          
+        >
+          <img src="/directiongo2.png" alt="go" style={{ width: "18px", height: "18px" }} />
+          Započni navigaciju
+        </button>
+      </Popup>
+    </Marker>
+))}
 
-            {searchResult && (
-              <Marker
-                position={[searchResult.lat, searchResult.lon]}
-                icon={new L.Icon({
-                  iconUrl: "/marker.png",
-                  iconSize: [40, 40],
-                  iconAnchor: [20, 40],
-                  popupAnchor: [0, -40],
-                })}
-              >
-                <Popup maxWidth={200}>
-                  {searchResult.name && searchResult.name.length > 60
-                    ? `${searchResult.name.substring(0, 60)}...`
-                    : searchResult.name || "Odabrana lokacija"}
-                </Popup>
-              </Marker>
-            )}
+
+{searchResult && (
+  <Marker
+    position={[searchResult.lat, searchResult.lon]}
+    icon={new L.Icon({
+      iconUrl: "/marker.png",
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40],
+    })}
+  >
+    <Popup maxWidth={200}>
+      <div>
+        {searchResult.name && searchResult.name.length > 60
+          ? `${searchResult.name.substring(0, 60)}...`
+          : searchResult.name || "Odabrana lokacija"}
+        <br />
+        <button
+          className="popup-navigate-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsFullscreen(true);
+            setRouteTarget([searchResult.lat, searchResult.lon]);
+            mapRef.current?.closePopup();
+          }}
+        >
+          <img src="/directiongo2.png" alt="go" style={{ width: "22px", height: "22px" }} />
+          Započni navigaciju
+        </button>
+      </div>
+    </Popup>
+  </Marker>
+)}
+
           </MapContainer>
 
           <SearchBar onSearch={handleSearch} />
           {currentInstruction && (
-            <div className="navigation-instruction">
-              <p>{currentInstruction}</p>
-            </div>
-          )}
+  <div className="navigation-instruction">
+    <p>{currentInstruction}</p>
+    {travelTime !== null && travelDistance !== null && (
+      <small style={{ color: "#333" }}>
+        {Math.round(travelTime / 60)} min • {(travelDistance / 1000).toFixed(1)} km
+      </small>
+    )}
+  </div>
+)}
 
-          <button
-            className={`fullscreen-toggle ${isFullscreen ? 'fullscreen-active' : 'above-list'}`}
-            onClick={() => setIsFullscreen(prev => !prev)}
-          >
-            <img src="/fullscreen.png" alt="fullscreen" />
-          </button>
+<button
+  className={`fullscreen-toggle ${isFullscreen ? 'fullscreen-active' : 'above-list'}`}
+  onClick={() => setIsFullscreen(prev => !prev)}
+>
+  <img
+    src={isFullscreen ? "/arrow-up.png" : "/arrow-down.png"}
+    alt="fullscreen toggle"
+    style={{ width: "24px", height: "24px" }}
+  />
+</button>
+
         </div>
 
         {routeTarget && (
@@ -361,22 +447,40 @@ if (container) {
       .map((marker) => (
         <div key={marker.id} className="parking-item">
           <div
-            style={{ color: "#000", cursor: "pointer" }}
-            onClick={() => {
-              mapRef.current?.closePopup();
-              mapRef.current?.setView([marker.lat, marker.lon], 16);
-            }}
-          >
-            <div style={{ fontWeight: "bold" }}>{marker.name}</div>
-            <div style={{ fontSize: "13px", color: "#444" }}>
-              Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
-            </div>
-          </div>
+  style={{ color: "#000", cursor: "pointer" }}
+  onClick={() => {
+    const offsetLat = marker.lat - 0.0008;
+
+    if (mapRef.current) {
+      const mapInstance = mapRef.current;
+
+      mapInstance.closePopup();
+
+      mapInstance.setView([offsetLat, marker.lon], 16, {
+        animate: true,
+      });
+
+      const handleMoveEnd = () => {
+        markerRefs.current[marker.id]?.openPopup();
+        mapInstance.off("moveend", handleMoveEnd)
+      };
+
+      mapInstance.on("moveend", handleMoveEnd);
+    }
+  }}
+>
+  <div style={{ fontWeight: "bold" }}>{marker.name}</div>
+  <div style={{ fontSize: "13px", color: "#444" }}>
+    Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
+  </div>
+</div>
+
           <button
             className="navigate-button"
             onClick={() => {
               setIsFullscreen(true);
               setRouteTarget([marker.lat, marker.lon]);
+              mapRef.current?.closePopup();
             }}
           >
             <img src="/directiongo2.png" alt="go" />

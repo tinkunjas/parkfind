@@ -207,3 +207,74 @@
 .mobile-content select option {
   font-size: 14px;
 }
+
+.layer-style-button {
+  position: absolute;
+  top: 65px;
+  left: 6px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background-color:#5e8ef5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.layer-style-button:hover {
+  transform: scale(1.08);
+  background-color: #0037ff;
+}
+
+.layer-style-button img {
+  width: 20px;
+  height: 20px;
+}
+
+
+.leaflet-popup-content {
+  width: 170px !important;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.popup-navigate-button {
+  background-color: #2563eb;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: background-color 0.3s ease;
+}
+
+.center-user-button {
+  position: absolute;
+  bottom: 150px;
+  left: 12px;
+  background-color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color 0.2s ease, z-index 0.2s ease;
+  z-index: 900;
+}
+
+.center-user-button img {
+  width: 22px;
+  height: 22px;
+}
