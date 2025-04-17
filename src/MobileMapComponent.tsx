@@ -232,7 +232,7 @@ const handleChangeMapStyle = () => {
     };
 
     fetchMarkers();
-    const interval = setInterval(fetchMarkers, 1000);
+const interval = setInterval(fetchMarkers, 3000);
     return () => clearInterval(interval);
   }, []);
 
