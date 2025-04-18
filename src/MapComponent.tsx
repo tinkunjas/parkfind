@@ -139,6 +139,14 @@ const MapComponent: React.FC = () => {
   const lastOpenedPopupRef = useRef<L.Popup | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRefs = useRef<Record<number, L.Marker>>({});
+  const [favorites, setFavorites] = useState<number[]>([]);
+
+const toggleFavorite = (id: number) => {
+  setFavorites((prev) =>
+    prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+  );
+};
+
 
   const fetchMarkers = async () => {
     try {
@@ -239,40 +247,63 @@ const MapComponent: React.FC = () => {
           </select>
         </div>
 
-        {filtriraniMarkeri.map((marker) => (
-          <div
-            key={marker.id}
-            style={{
-              backgroundColor: "#f9fafb",
-              padding: "8px",
-              marginBottom: "6px",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              const map = mapRef.current;
-              if (map) {
-                const [lat, lon] = marker.position;
-                map.setView([lat, lon], 16, { animate: true });
-                const handleMoveEnd = () => {
-                  markerRefs.current[marker.id]?.openPopup();
-                  map.off("moveend", handleMoveEnd);
-                };
-                map.on("moveend", handleMoveEnd);
-              }
-            }}
-          >
-            <div style={{ fontWeight: "bold" }}>{marker.popupText}</div>
-            <div style={{ fontSize: "13px", color: "#444" }}>
-              Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
-            </div>
-            {userPosition && (
-  <div style={{ fontSize: "13px", color: "#444" }}>
-    {(getDistance(userPosition[0], userPosition[1], marker.position[0], marker.position[1]) / 1000).toFixed(2)} km udaljeno
+{filtriraniMarkeri.map((marker) => (
+  <div
+    key={marker.id}
+    style={{
+      backgroundColor: "#f9fafb",
+      padding: "8px",
+      marginBottom: "6px",
+      borderRadius: "8px",
+      cursor: "pointer",
+    }}
+    onClick={() => {
+      const map = mapRef.current;
+      if (map) {
+        const [lat, lon] = marker.position;
+        map.setView([lat, lon], 16, { animate: true });
+        const handleMoveEnd = () => {
+          markerRefs.current[marker.id]?.openPopup();
+          map.off("moveend", handleMoveEnd);
+        };
+        map.on("moveend", handleMoveEnd);
+      }
+    }}
+  >
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+  <div style={{ fontWeight: "bold" }}>{marker.popupText}</div>
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      toggleFavorite(marker.id);
+    }}
+    style={{
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      fontSize: "18px",
+    }}
+  >
+    {favorites.includes(marker.id) ? "❤️" : "🤍"}
+  </button>
+</div>
+
+    <div style={{ fontWeight: "bold" }}>{marker.popupText}</div>
+    <div style={{ fontSize: "13px", color: "#444" }}>
+      Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
+    </div>
+    {userPosition && (
+      <div style={{ fontSize: "13px", color: "#444" }}>
+        {(getDistance(
+          userPosition[0],
+          userPosition[1],
+          marker.position[0],
+          marker.position[1]
+        ) / 1000).toFixed(2)} km udaljeno
+      </div>
+    )}
   </div>
-)}
-          </div>
-        ))}
+))}
       </div>
 
       <Sidebar

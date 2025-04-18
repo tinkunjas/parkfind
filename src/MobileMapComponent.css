@@ -305,3 +305,18 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+
+.heart-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  box-shadow: none;
+}
+
+.heart-button:focus {
+  outline: none;
+  box-shadow: none;
+}

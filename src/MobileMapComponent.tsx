@@ -113,6 +113,14 @@ const MobileMapComponent: React.FC = () => {
 const [travelDistance, setTravelDistance] = useState<number | null>(null);
 const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
 const markerRefs = useRef<Record<number, L.Marker>>({});
+const [favorites, setFavorites] = useState<number[]>([]);
+
+const toggleFavorite = (id: number) => {
+  setFavorites((prev) =>
+    prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+  );
+};
+
 
 
 const handleChangeMapStyle = () => {
@@ -268,7 +276,6 @@ const interval = setInterval(fetchMarkers, 3000);
     <img src="/center.png" alt="centar" />
   </button>
 )}
-
 
           <MapContainer
             center={defaultPosition}
@@ -480,17 +487,31 @@ const interval = setInterval(fetchMarkers, 3000);
     }
   }}
 >
-  <div>
+<div>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
     <div style={{ fontWeight: "bold", color: "#000" }}>{marker.name}</div>
-    <div style={{ fontSize: "13px", color: "#444" }}>
-      Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
-    </div>
-    {userPosition && (
+    <button
+className="heart-button"
+onClick={(e) => {
+  e.stopPropagation();
+  toggleFavorite(marker.id);
+}}
+>
+      {favorites.includes(marker.id) ? "❤️" : "🤍"}
+    </button>
+  </div>
+
   <div style={{ fontSize: "13px", color: "#444" }}>
-    {(getDistance(userPosition[0], userPosition[1], marker.lat, marker.lon) / 1000).toFixed(2)} km udaljeno
+    Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
   </div>
-)}
-  </div>
+
+  {userPosition && (
+    <div style={{ fontSize: "13px", color: "#444" }}>
+      {(getDistance(userPosition[0], userPosition[1], marker.lat, marker.lon) / 1000).toFixed(2)} km udaljeno
+    </div>
+  )}
+</div>
+
 
   <button
     className="navigate-button"
