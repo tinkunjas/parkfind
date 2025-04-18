@@ -113,7 +113,16 @@ const MobileMapComponent: React.FC = () => {
 const [travelDistance, setTravelDistance] = useState<number | null>(null);
 const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
 const markerRefs = useRef<Record<number, L.Marker>>({});
-const [favorites, setFavorites] = useState<number[]>([]);
+const [favorites, setFavorites] = useState<number[]>(() => {
+  try {
+    const stored = localStorage.getItem("favoriti");
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error("Greška pri učitavanju favorita:", e);
+    return [];
+  }
+});
+
 
 const toggleFavorite = (id: number) => {
   setFavorites((prev) =>
@@ -244,13 +253,23 @@ const interval = setInterval(fetchMarkers, 3000);
     return () => clearInterval(interval);
   }, []);
 
-    if (!userPosition || markers.length === 0) {
-      return (
-        <div className="loading-screen">
-          <img src="/spinner.png" alt="Učitavanje..." className="spinner" />
-        </div>
-      );
+  useEffect(() => {
+    try {
+      localStorage.setItem("favoriti", JSON.stringify(favorites));
+    } catch (e) {
+      console.error("Greška pri spremanju favorita:", e);
     }
+  }, [favorites]);
+  
+  if (!userPosition || markers.length === 0) {
+    return (
+      <div className="loading-screen">
+        <img src="/spinner.png" alt="Učitavanje..." className="spinner" />
+      </div>
+    );
+  }
+  
+    
 
   return (
     <div className="mobile-container">
