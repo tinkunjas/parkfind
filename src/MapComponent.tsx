@@ -135,6 +135,7 @@ const MapComponent: React.FC = () => {
   const [selectedZone, setSelectedZone] = useState<number | null>(null);
   const [slobodnaMjestaFilter, setSlobodnaMjestaFilter] = useState<number | null>(null);
   const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
+  const [searchText, setSearchText] = useState("");
   const lastOpenedPopupRef = useRef<L.Popup | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRefs = useRef<Record<number, L.Marker>>({});
@@ -199,7 +200,8 @@ const toggleFavorite = (id: number) => {
 
   const filtriraniMarkeri = markers.filter((m) =>
     (selectedZone ? m.zona === selectedZone : true) &&
-    (slobodnaMjestaFilter !== null ? m.slobodnaMjesta > slobodnaMjestaFilter : true)
+    (slobodnaMjestaFilter !== null ? m.slobodnaMjesta > slobodnaMjestaFilter : true) &&
+    (!searchText || m.popupText.toLowerCase().includes(searchText.toLowerCase()))
   );
 
   useEffect(() => {
@@ -231,14 +233,47 @@ const toggleFavorite = (id: number) => {
         }}
       >
         <h3 style={{ marginBottom: "1rem", color: "#111" }}>🅿️ Lista parkinga</h3>
+        <input
+  type="text"
+  placeholder="Pretraži parking..."
+  value={searchText}
+  onChange={(e) => setSearchText(e.target.value)}
+  style={{
+    width: 'calc(100% - 24px)',
+    color: '#000',
+    margin: '0 12px 12px 12px',
+    padding: '6px 10px',
+    border: '1px solid #ccc',
+    borderRadius: '18px',
+    fontSize: '14px',
+    boxSizing: 'border-box',
+    backgroundColor: '#ffffff'
+  }}
+/>
+
 
         <div style={{ marginBottom: "12px", display: "flex", gap: "8px" }}>
-          <select
-            value={selectedZone ?? ""}
-            onChange={(e) =>
-              setSelectedZone(e.target.value ? Number(e.target.value) : null)
-            }
-            style={{ flex: 1 }}
+        <select
+  value={selectedZone ?? ""}
+  onChange={(e) =>
+    setSelectedZone(e.target.value ? Number(e.target.value) : null)
+  }
+  style={{
+    padding: '6px 10px',
+    border: '1px solid #ccc',
+    borderRadius: '18px',
+    fontSize: '14px',
+    backgroundColor: '#ffffff',
+    color: '#000',
+    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 10px center',
+    backgroundSize: '10px 6px',
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
+    flex: 1
+  }}
           >
             <option value="">Sve zone</option>
             <option value="1">Zona 1</option>
@@ -256,7 +291,22 @@ const toggleFavorite = (id: number) => {
                 setSlobodnaMjestaFilter(Number(val));
               }
             }}
-            style={{ flex: 1 }}
+            style={{
+              padding: '6px 10px',
+              border: '1px solid #ccc',
+              borderRadius: '18px',
+              fontSize: '14px',
+              backgroundColor: '#ffffff',
+              color: '#000',
+              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 10px center',
+              backgroundSize: '10px 6px',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+              flex: 1
+            }}
           >
             <option value="">Slobodna mjesta</option>
             <option value="5">Više od 5</option>

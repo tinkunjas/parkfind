@@ -110,6 +110,7 @@ const MobileMapComponent: React.FC = () => {
   const [filterZona, setFilterZona] = useState<number | null>(null);
   const [filterMjesta, setFilterMjesta] = useState<number | null>(null);
   const [travelTime, setTravelTime] = useState<number | null>(null);
+  const [searchText, setSearchText] = useState("");
 const [travelDistance, setTravelDistance] = useState<number | null>(null);
 const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
 const markerRefs = useRef<Record<number, L.Marker>>({});
@@ -471,10 +472,19 @@ const interval = setInterval(fetchMarkers, 3000);
       </div>
     </div>
 
+    <input
+  type="text"
+  className="mobile-parking-search-input"
+  placeholder="Pretraži parking..."
+  value={searchText}
+  onChange={(e) => setSearchText(e.target.value)}
+/>
+
     {[...markers]
       .filter(marker => {
         if (filterZona !== null && marker.zona !== filterZona) return false;
         if (filterMjesta !== null && marker.slobodnaMjesta <= filterMjesta) return false;
+        if (searchText && !marker.name.toLowerCase().includes(searchText.toLowerCase())) return false;
         return true;
       })
       .sort((a, b) => {

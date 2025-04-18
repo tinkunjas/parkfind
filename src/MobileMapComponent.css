@@ -320,3 +320,15 @@
   outline: none;
   box-shadow: none;
 }
+
+.mobile-parking-search-input {
+  width: calc(100% - 24px);
+  margin: 0 12px 12px 12px;
+  color: #111;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 18px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
