@@ -34,6 +34,24 @@ const UserLocationMarker = ({ setUserPosition }: { setUserPosition: (pos: [numbe
   return null;
 };
 
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371e3;
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) *
+    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
+
 const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string }) => {
   const map = useMap();
 
@@ -248,6 +266,11 @@ const MapComponent: React.FC = () => {
             <div style={{ fontSize: "13px", color: "#444" }}>
               Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
             </div>
+            {userPosition && (
+  <div style={{ fontSize: "13px", color: "#444" }}>
+    {(getDistance(userPosition[0], userPosition[1], marker.position[0], marker.position[1]) / 1000).toFixed(2)} km udaljeno
+  </div>
+)}
           </div>
         ))}
       </div>

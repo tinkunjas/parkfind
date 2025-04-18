@@ -463,7 +463,6 @@ const interval = setInterval(fetchMarkers, 3000);
   className="parking-item"
   style={{ cursor: "pointer" }}
   onClick={(e) => {
-    // ignoriraj klik ako je kliknut unutar gumba
     if ((e.target as HTMLElement).closest(".navigate-button")) return;
 
     const offsetLat = marker.lat - 0.0008;
@@ -486,6 +485,11 @@ const interval = setInterval(fetchMarkers, 3000);
     <div style={{ fontSize: "13px", color: "#444" }}>
       Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
     </div>
+    {userPosition && (
+  <div style={{ fontSize: "13px", color: "#444" }}>
+    {(getDistance(userPosition[0], userPosition[1], marker.lat, marker.lon) / 1000).toFixed(2)} km udaljeno
+  </div>
+)}
   </div>
 
   <button
