@@ -6,6 +6,7 @@ import {
   Popup,
   useMap,
   ZoomControl,
+  Tooltip,
 } from "react-leaflet";
 import SearchBar from "./SearchBar";
 import Sidebar from "./Sidebar";
@@ -440,29 +441,34 @@ const toggleFavorite = (id: number) => {
         </button>
 
         {filtriraniMarkeri.map((marker) => (
-          <Marker
-            key={marker.id}
-            position={marker.position}
-            icon={zoneIcons[marker.zona]}
-            ref={(ref) => {
-              if (ref) markerRefs.current[marker.id] = ref;
-            }}
-            eventHandlers={{
-              popupopen: (e) => {
-                if (lastOpenedPopupRef.current && lastOpenedPopupRef.current !== e.popup) {
-                  lastOpenedPopupRef.current.close();
-                }
-                lastOpenedPopupRef.current = e.popup;
-              },
-            }}
-          >
-            <Popup>
-              {marker.popupText} <br />
-              Zona: {marker.zona} <br />
-              Slobodna mjesta: {marker.slobodnaMjesta}
-            </Popup>
-          </Marker>
-        ))}
+  <Marker
+    key={marker.id}
+    position={marker.position}
+    icon={zoneIcons[marker.zona]}
+    title={marker.popupText}
+    ref={(ref) => {
+      if (ref) markerRefs.current[marker.id] = ref;
+    }}
+    eventHandlers={{
+      popupopen: (e) => {
+        if (lastOpenedPopupRef.current && lastOpenedPopupRef.current !== e.popup) {
+          lastOpenedPopupRef.current.close();
+        }
+        lastOpenedPopupRef.current = e.popup;
+      },
+    }}
+  >
+    <Popup>
+      {marker.popupText} <br />
+      Zona: {marker.zona} <br />
+      Slobodna mjesta: {marker.slobodnaMjesta}
+    </Popup>
+    <Tooltip direction="top" offset={[0, -20]} opacity={0.9} permanent={false}>
+    {marker.popupText}
+  </Tooltip>
+  </Marker>
+))}
+
 
         {searchResult && (
           <MapMover lat={searchResult.lat} lon={searchResult.lon} name={searchResult.name} />
