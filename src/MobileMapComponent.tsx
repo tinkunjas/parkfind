@@ -252,6 +252,17 @@ const interval = setInterval(fetchMarkers, 3000);
       );
     }
 
+    useEffect(() => {
+      const stored = localStorage.getItem("favoriti");
+      if (stored) {
+        setFavorites(JSON.parse(stored));
+      }
+    }, []);
+    
+    useEffect(() => {
+      localStorage.setItem("favoriti", JSON.stringify(favorites));
+    }, [favorites]);
+    
   return (
     <div className="mobile-container">
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
