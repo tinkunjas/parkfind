@@ -194,17 +194,6 @@ const toggleFavorite = (id: number) => {
     (slobodnaMjestaFilter !== null ? m.slobodnaMjesta > slobodnaMjestaFilter : true)
   );
 
-  useEffect(() => {
-    const stored = localStorage.getItem("favoriti");
-    if (stored) {
-      setFavorites(JSON.parse(stored));
-    }
-  }, []);
-  
-  useEffect(() => {
-    localStorage.setItem("favoriti", JSON.stringify(favorites));
-  }, [favorites]);
-  
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
       <SearchBar onSearch={handleSearch} />
