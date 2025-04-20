@@ -448,7 +448,7 @@ const interval = setInterval(fetchMarkers, 3000);
       {!isFullscreen && (
   <div className="mobile-content">
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <h3 style={{ marginBottom: "1rem", marginLeft: "5px", color: "#000" }}>🅿️ Lista parkinga</h3>
+      <h3 style={{ marginBottom: "1rem", marginLeft: "7px", color: "#000" }}>🅿️ Lista parkinga</h3>
       <div style={{ display: "flex", gap: "8px" }}>
         <select
           value={filterZona ?? ""}
@@ -464,7 +464,7 @@ const interval = setInterval(fetchMarkers, 3000);
         <select
           value={filterMjesta ?? ""}
           onChange={(e) => setFilterMjesta(e.target.value ? Number(e.target.value) : null)}
-          style={{ marginRight: "10px"}}
+          style={{ marginRight: "8px"}}
         >
           <option value="">Slobodna mjesta</option>
           <option value="1">Više od 5</option>
