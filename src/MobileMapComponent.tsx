@@ -453,6 +453,7 @@ const interval = setInterval(fetchMarkers, 3000);
         <select
           value={filterZona ?? ""}
           onChange={(e) => setFilterZona(e.target.value ? Number(e.target.value) : null)}
+          style={{ marginRight: "-4px"}}
         >
           <option value="">Sve zone</option>
           <option value="1">Zona 1</option>
