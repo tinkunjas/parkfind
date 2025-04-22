@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 interface SidebarProps {
   isOpen: boolean;
   setTileLayerUrl: (url: string) => void;
-  toggleSatelliteView: () => void; // dodano ovdje ✅
+  toggleSatelliteView: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({

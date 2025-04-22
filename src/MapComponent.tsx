@@ -20,20 +20,14 @@ const croatiaBounds: [[number, number], [number, number]] = [
   [46.6, 19.5],
 ];
 
-const UserLocationMarker = ({ setUserPosition }: { setUserPosition: (pos: [number, number]) => void }) => {
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserPosition([position.coords.latitude, position.coords.longitude]);
-      },
-      (error) => {
-        console.error("Greška pri dohvaćanju lokacije:", error);
-      }
-    );
-  }, [setUserPosition]);
+const userIcon = new L.Icon({
+  iconUrl: "/user.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 
-  return null;
-};
 
 function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371e3;
@@ -139,6 +133,7 @@ const MapComponent: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const lastOpenedPopupRef = useRef<L.Popup | null>(null);
   const mapRef = useRef<L.Map | null>(null);
+  
   const markerRefs = useRef<Record<number, L.Marker>>({});
   const [favorites, setFavorites] = useState<number[]>(() => {
     try {
@@ -177,6 +172,24 @@ const toggleFavorite = (id: number) => {
       console.error("Greška pri učitavanju datoteke:", error);
     }
   };
+
+  useEffect(() => {
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setUserPosition([position.coords.latitude, position.coords.longitude]);
+      },
+      (error) => {
+        console.error("Greška pri dohvaćanju lokacije:", error);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 5000,
+      }
+    );
+  
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, []);
 
   useEffect(() => {
     fetchMarkers();
@@ -407,7 +420,17 @@ const toggleFavorite = (id: number) => {
           attribution='&copy; <a href="https://www.esri.com/">Esri</a> / <a href="https://www.openstreetmap.org/">OSM</a> / <a href="https://carto.com/">CARTO</a>'
         />
 
-        <UserLocationMarker setUserPosition={setUserPosition} />
+{userPosition && (
+  <Marker position={userPosition} icon={userIcon}>
+    <Popup>Tvoja lokacija</Popup>
+  </Marker>
+)}
+{!userPosition && (
+  <Marker position={defaultPosition} icon={userIcon}>
+    <Popup>Lokacija nije dostupna</Popup>
+  </Marker>
+)}
+
 
         <button
           style={{

@@ -179,53 +179,47 @@ const handleChangeMapStyle = () => {
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !userPosition || !routeTarget) return;
+    if (!mapRef.current || !userPosition) return;
   
-    if (routingControlRef.current) {
-      routingControlRef.current.setWaypoints([
-        L.latLng(userPosition[0], userPosition[1]),
-        L.latLng(routeTarget[0], routeTarget[1]),
-      ]);
-    } else {
-      routingControlRef.current = L.Routing.control({
-        waypoints: [
-          L.latLng(userPosition[0], userPosition[1]),
-          L.latLng(routeTarget[0], routeTarget[1]),
-        ],
-        routeWhileDragging: false,
-        addWaypoints: false,
-        draggableWaypoints: false,
-        fitSelectedRoutes: false,
-        show: false,
-        createMarker: () => null,
-        lineOptions: {
-          styles: [{ color: "#2563eb", weight: 4, opacity: 1 }],
-        },
-        containerClassName: "custom-routing-container",
+    if (routingControlRef.current) return;
+  
+    routingControlRef.current = L.Routing.control({
+      waypoints: [],
+      routeWhileDragging: false,
+      addWaypoints: false,
+      draggableWaypoints: false,
+      fitSelectedRoutes: false,
+      show: false,
+      createMarker: () => null,
+      lineOptions: {
+        styles: [{ color: "#2563eb", weight: 4, opacity: 1 }],
+      },
+      containerClassName: "custom-routing-container",
+    })
+      .on("routesfound", function (e: any) {
+        const summary = e.routes[0].summary;
+        const instructions =
+          e.routes[0].instructions || e.routes[0].segments?.flatMap((seg: any) => seg.steps) || [];
+  
+        setTravelTime(summary.totalTime);
+        setTravelDistance(summary.totalDistance);
+  
+        if (instructions.length > 0) {
+          setCurrentInstruction(instructions[0].instruction || instructions[0].text);
+        }
       })
-        .on("routesfound", function (e: any) {
-          const summary = e.routes[0].summary;
-          const instructions = e.routes[0].instructions || e.routes[0].segments?.flatMap((seg: any) => seg.steps) || [];
+      .on("routeselected", function (e: any) {
+        const steps = e.route.instructions || e.route.segments?.flatMap((s: any) => s.steps) || [];
+        if (steps.length > 0) {
+          setCurrentInstruction(steps[0].instruction || steps[0].text);
+        }
+      })
+      .addTo(mapRef.current);
   
-          setTravelTime(summary.totalTime);
-          setTravelDistance(summary.totalDistance);
+    const container = routingControlRef.current.getContainer();
+    if (container) container.style.display = "none";
+  }, [userPosition]);
   
-          if (instructions.length > 0) {
-            setCurrentInstruction(instructions[0].instruction || instructions[0].text);
-          }
-        })
-        .on("routeselected", function (e: any) {
-          const steps = e.route.instructions || e.route.segments?.flatMap((s: any) => s.steps) || [];
-          if (steps.length > 0) {
-            setCurrentInstruction(steps[0].instruction || steps[0].text);
-          }
-        })
-        .addTo(mapRef.current);
-  
-      const container = routingControlRef.current.getContainer();
-      if (container) container.style.display = "none";
-    }
-  }, [routeTarget, userPosition]);  
 
   useEffect(() => {
     const fetchMarkers = async () => {
@@ -316,9 +310,11 @@ const interval = setInterval(fetchMarkers, 3000);
               <Marker
                 position={userPosition}
                 icon={new L.Icon({
-                  iconUrl: "https://cdn-icons-png.flaticon.com/512/3177/3177361.png",
-                  iconSize: [35, 35],
-                  iconAnchor: [17, 35],
+                  iconUrl: "/user.png",
+                  iconSize: [25, 41],
+                  iconAnchor: [12, 41],
+                  popupAnchor: [1, -34],
+                  shadowSize: [41, 41],
                 })}
               >
                 <Popup offset={[0, -40]} closeButton={true}>
@@ -354,11 +350,22 @@ const interval = setInterval(fetchMarkers, 3000);
             setRouteTarget([marker.lat, marker.lon]);
             mapRef.current?.closePopup();
           
+            if (routingControlRef.current && userPosition) {
+              routingControlRef.current.spliceWaypoints(0, 2);
+              routingControlRef.current.setWaypoints([
+                L.latLng(userPosition[0], userPosition[1]),
+                L.latLng(marker.lat, marker.lon),
+              ]);
+              routingControlRef.current.route();
+            }
+            
+          
             if (userPosition) {
               const offsetLat = userPosition[0] - 0.0012;
               mapRef.current?.setView([offsetLat, userPosition[1]], 16, { animate: true });
             }
           }}
+          
           
           
         >
@@ -434,11 +441,16 @@ const interval = setInterval(fetchMarkers, 3000);
           <button
             className={`cancel-navigation ${isFullscreen ? "on-top" : "behind-content"}`}
             onClick={() => {
-              routingControlRef.current?.remove();
-              routingControlRef.current = null;
+              if (routingControlRef.current) {
+                routingControlRef.current.spliceWaypoints(0, 2);
+              }
+              
+            
               setRouteTarget(null);
               setCurrentInstruction(null);
-            }}
+              setTravelTime(null);
+              setTravelDistance(null);
+            }}            
           >
             Prekini navigaciju
           </button>
