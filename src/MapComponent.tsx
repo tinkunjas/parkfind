@@ -54,9 +54,10 @@ const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string 
 
     const customIcon = new L.Icon({
       iconUrl: "/marker.png",
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -40],
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
     });
 
     map.setView(target, 15);

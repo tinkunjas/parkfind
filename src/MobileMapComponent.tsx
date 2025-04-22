@@ -244,7 +244,7 @@ const handleChangeMapStyle = () => {
     };
 
     fetchMarkers();
-const interval = setInterval(fetchMarkers, 3000);
+const interval = setInterval(fetchMarkers, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -382,9 +382,10 @@ const interval = setInterval(fetchMarkers, 3000);
     position={[searchResult.lat, searchResult.lon]}
     icon={new L.Icon({
       iconUrl: "/marker.png",
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      popupAnchor: [0, -40],
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
     })}
   >
     <Popup maxWidth={200}>
@@ -400,7 +401,17 @@ const interval = setInterval(fetchMarkers, 3000);
             setIsFullscreen(true);
             setRouteTarget([searchResult.lat, searchResult.lon]);
             mapRef.current?.closePopup();
+          
+            if (routingControlRef.current && userPosition) {
+              routingControlRef.current.spliceWaypoints(0, 2);
+              routingControlRef.current.setWaypoints([
+                L.latLng(userPosition[0], userPosition[1]),
+                L.latLng(searchResult.lat, searchResult.lon),
+              ]);
+              routingControlRef.current.route();
+            }
           }}
+          
         >
           <img src="/directiongo2.png" alt="go" style={{ width: "22px", height: "22px" }} />
           Započni navigaciju
@@ -416,6 +427,17 @@ const interval = setInterval(fetchMarkers, 3000);
           {currentInstruction && (
   <div className="navigation-instruction">
     <p>{currentInstruction}</p>
+
+    {routeTarget && (
+      <div style={{ fontSize: "13px", color: "#333", marginBottom: "4px" }}>
+        Slobodna mjesta: {
+          markers.find(m =>
+            m.lat === routeTarget[0] && m.lon === routeTarget[1]
+          )?.slobodnaMjesta ?? "?"
+        }
+      </div>
+    )}
+
     {travelTime !== null && travelDistance !== null && (
       <small style={{ color: "#333" }}>
         {Math.round(travelTime / 60)} min • {(travelDistance / 1000).toFixed(1)} km
@@ -423,6 +445,7 @@ const interval = setInterval(fetchMarkers, 3000);
     )}
   </div>
 )}
+
 
 <button
   className={`fullscreen-toggle ${isFullscreen ? 'fullscreen-active' : 'above-list'}`}
