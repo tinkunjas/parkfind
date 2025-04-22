@@ -556,15 +556,30 @@ onClick={(e) => {
 </div>
 
 
-  <button
-    className="navigate-button"
-    onClick={(e) => {
-      e.stopPropagation();
-      setIsFullscreen(true);
-      setRouteTarget([marker.lat, marker.lon]);
-      mapRef.current?.closePopup();
-    }}
-  >
+<button
+  className="navigate-button"
+  onClick={(e) => {
+    e.stopPropagation();
+    setIsFullscreen(true);
+    setRouteTarget([marker.lat, marker.lon]);
+    mapRef.current?.closePopup();
+
+    if (routingControlRef.current && userPosition) {
+      routingControlRef.current.spliceWaypoints(0, 2);
+      routingControlRef.current.setWaypoints([
+        L.latLng(userPosition[0], userPosition[1]),
+        L.latLng(marker.lat, marker.lon),
+      ]);
+      routingControlRef.current.route();
+    }
+
+    if (userPosition) {
+      const offsetLat = userPosition[0] - 0.0012;
+      mapRef.current?.setView([offsetLat, userPosition[1]], 16, { animate: true });
+    }
+  }}
+>
+
     <img src="/directiongo2.png" alt="go" />
   </button>
   </div>
