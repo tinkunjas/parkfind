@@ -328,7 +328,15 @@ const toggleFavorite = (id: number) => {
           </select>
         </div>
 
-        {filtriraniMarkeri.map((marker) => (
+        {[...filtriraniMarkeri]
+  .sort((a, b) => {
+    if (!userPosition) return 0;
+    const distA = getDistance(userPosition[0], userPosition[1], a.position[0], a.position[1]);
+    const distB = getDistance(userPosition[0], userPosition[1], b.position[0], b.position[1]);
+    return distA - distB;
+  })
+  .map((marker) => (
+
   <div
     key={marker.id}
     style={{
