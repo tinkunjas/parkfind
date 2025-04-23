@@ -260,11 +260,10 @@ const interval = setInterval(fetchMarkers, 1000);
     return (
       <div className="loading-screen">
         <img src="/spinner.png" alt="Učitavanje..." className="spinner" />
+        Učitavanje karte...
       </div>
     );
   }
-  
-    
 
   return (
     <div className="mobile-container">
@@ -372,10 +371,33 @@ const interval = setInterval(fetchMarkers, 1000);
           <img src="/directiongo2.png" alt="go" style={{ width: "18px", height: "18px" }} />
           Započni navigaciju
         </button>
+        <div style={{
+  marginTop: "6px",
+  display: "flex",
+  alignItems: "center",
+  gap: "6px"
+}}>
+  <img
+    src="/gmaps.png"
+    alt="Google Maps"
+    className="google-maps-icon"
+  />
+  <a
+    href={`https://www.google.com/maps/dir/?api=1&destination=${marker.lat},${marker.lon}&travelmode=driving`}
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{
+      fontSize: "14px",
+      color: "#2563eb",
+      textDecoration: "underline"
+    }}
+  >
+    Otvori u Google Maps
+  </a>
+</div>
       </Popup>
     </Marker>
 ))}
-
 
 {searchResult && (
   <Marker
