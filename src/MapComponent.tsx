@@ -63,9 +63,24 @@ const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string 
     map.setView(target, 15);
 
     const marker = L.marker(target, { icon: customIcon }).addTo(map);
-    if (name) {
-      marker.bindPopup(name).openPopup();
-    }
+
+    const popupContent = document.createElement("div");
+    popupContent.style.fontSize = "14px";
+
+    popupContent.innerHTML = `
+      <div>
+        ${name?.length ? name.length > 60 ? name.substring(0, 60) + "..." : name : "Odabrana lokacija"}
+        <br/>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving" 
+           target="_blank" rel="noopener noreferrer" 
+           style="display: flex; align-items: center; gap: 6px; text-decoration: none; margin-top: 8px; color: #2563eb;">
+          <img src="/gmaps.png" alt="gmaps" class="google-maps-icon" />
+          Otvori u Google Maps
+        </a>
+      </div>
+    `;
+
+    marker.bindPopup(popupContent).openPopup();
 
     return () => {
       map.removeLayer(marker);
@@ -74,6 +89,7 @@ const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string 
 
   return null;
 };
+
 
 interface MarkerData {
   id: number;
@@ -490,11 +506,37 @@ const toggleFavorite = (id: number) => {
       },
     }}
   >
-    <Popup>
-      {marker.popupText} <br />
-      Zona: {marker.zona} <br />
-      Slobodna mjesta: {marker.slobodnaMjesta}
-    </Popup>
+    <Popup maxWidth={250}>
+  <div style={{ fontSize: "14px" }}>
+    {marker.popupText}<br />
+    Zona: {marker.zona}<br />
+    Slobodna mjesta: {marker.slobodnaMjesta}<br />
+
+    <a
+      href={`https://www.google.com/maps/dir/?api=1&destination=${marker.position[0]},${marker.position[1]}&travelmode=driving`}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "6px",
+        textDecoration: "none",
+        marginTop: "8px",
+        color: "#2563eb"
+      }}
+    >
+      <img src="/gmaps.png" alt="gmaps" style={{
+        width: "18px",
+        height: "18px",
+        borderRadius: "4px",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.15)",
+        objectFit: "contain"
+      }} />
+      Otvori u Google Maps
+    </a>
+  </div>
+</Popup>
+
     <Tooltip direction="top" offset={[0, -20]} opacity={0.9} permanent={false}>
     {marker.popupText}
   </Tooltip>
