@@ -145,7 +145,7 @@ const MapComponent: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [selectedZone, setSelectedZone] = useState<number | null>(null);
-  const [slobodnaMjestaFilter, setSlobodnaMjestaFilter] = useState<number | null>(null);
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [userPosition, setUserPosition] = useState<[number, number] | null>(null);
   const [searchText, setSearchText] = useState("");
   const lastOpenedPopupRef = useRef<L.Popup | null>(null);
@@ -231,7 +231,7 @@ const toggleFavorite = (id: number) => {
 
   const filtriraniMarkeri = markers.filter((m) =>
     (selectedZone ? m.zona === selectedZone : true) &&
-    (slobodnaMjestaFilter !== null ? m.slobodnaMjesta > slobodnaMjestaFilter : true) &&
+    (!showOnlyFavorites || favorites.includes(m.id)) &&
     (!searchText || m.popupText.toLowerCase().includes(searchText.toLowerCase()))
   );
 
@@ -315,12 +315,7 @@ const toggleFavorite = (id: number) => {
 
           <select
             onChange={(e) => {
-              const val = e.target.value;
-              if (val === "") {
-                setSlobodnaMjestaFilter(null);
-              } else {
-                setSlobodnaMjestaFilter(Number(val));
-              }
+              setShowOnlyFavorites(e.target.value === "favorites");
             }}
             style={{
               padding: '6px 10px',
@@ -339,9 +334,8 @@ const toggleFavorite = (id: number) => {
               flex: 1
             }}
           >
-            <option value="">Slobodna mjesta</option>
-            <option value="5">Više od 5</option>
-            <option value="10">Više od 10</option>
+          <option value="">Svi parkinzi</option>
+          <option value="favorites">Favoriti ❤️</option>
           </select>
         </div>
 

@@ -108,9 +108,9 @@ const MobileMapComponent: React.FC = () => {
   const [routeTarget, setRouteTarget] = useState<[number, number] | null>(null);
   const [currentInstruction, setCurrentInstruction] = useState<string | null>(null);
   const [filterZona, setFilterZona] = useState<number | null>(null);
-  const [filterMjesta, setFilterMjesta] = useState<number | null>(null);
   const [travelTime, setTravelTime] = useState<number | null>(null);
   const [searchText, setSearchText] = useState("");
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
 const [travelDistance, setTravelDistance] = useState<number | null>(null);
 const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
 const markerRefs = useRef<Record<number, L.Marker>>({});
@@ -322,11 +322,12 @@ const interval = setInterval(fetchMarkers, 1000);
               </Marker>
             )}
 {markers
-  .filter(marker => {
-    if (filterZona !== null && marker.zona !== filterZona) return false;
-    if (filterMjesta !== null && marker.slobodnaMjesta <= filterMjesta) return false;
-    return true;
-  })
+ .filter(marker => {
+  if (filterZona !== null && marker.zona !== filterZona) return false;
+  if (showOnlyFavorites && !favorites.includes(marker.id)) return false;
+  if (searchText && !marker.name.toLowerCase().includes(searchText.toLowerCase())) return false;
+  return true;
+})
   .map((marker) => (
     <Marker
   key={marker.id}
@@ -535,14 +536,14 @@ const interval = setInterval(fetchMarkers, 1000);
         </select>
 
         <select
-          value={filterMjesta ?? ""}
-          onChange={(e) => setFilterMjesta(e.target.value ? Number(e.target.value) : null)}
-          style={{ marginRight: "8px"}}
-        >
-          <option value="">Slobodna mjesta</option>
-          <option value="1">Više od 5</option>
-          <option value="5">Više od 10</option>
-        </select>
+  value={showOnlyFavorites ? "favorites" : ""}
+  onChange={(e) => setShowOnlyFavorites(e.target.value === "favorites")}
+  style={{ marginRight: "8px" }}
+>
+  <option value="">Svi parkinzi</option>
+  <option value="favorites">Favoriti ❤️</option>
+</select>
+
       </div>
     </div>
 
@@ -557,10 +558,10 @@ const interval = setInterval(fetchMarkers, 1000);
     {[...markers]
       .filter(marker => {
         if (filterZona !== null && marker.zona !== filterZona) return false;
-        if (filterMjesta !== null && marker.slobodnaMjesta <= filterMjesta) return false;
+        if (showOnlyFavorites && !favorites.includes(marker.id)) return false;
         if (searchText && !marker.name.toLowerCase().includes(searchText.toLowerCase())) return false;
         return true;
-      })
+      })      
       .sort((a, b) => {
         if (!userPosition) return 0;
         const distA = getDistance(userPosition[0], userPosition[1], a.lat, a.lon);
