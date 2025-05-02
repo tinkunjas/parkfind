@@ -224,20 +224,9 @@ const handleChangeMapStyle = () => {
   useEffect(() => {
     const fetchMarkers = async () => {
       try {
-        const res = await fetch("/parkinzi.txt");
-        const text = await res.text();
-        const parsed = text.trim().split("\n").map((line) => {
-          const [id, lat, lon, name, zona, slobodnaMjesta] = line.split(";");
-          return {
-            id: Number(id),
-            lat: parseFloat(lat),
-            lon: parseFloat(lon),
-            name,
-            zona: Number(zona),
-            slobodnaMjesta: Number(slobodnaMjesta),
-          };
-        });
-        setMarkers(parsed);
+        const res = await fetch("https://parkfind-backend.onrender.com/api/parking");
+const data = await res.json();
+setMarkers(data);
       } catch (error) {
         console.error("Greška pri učitavanju parkinga:", error);
       }

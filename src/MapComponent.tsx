@@ -172,19 +172,16 @@ const toggleFavorite = (id: number) => {
 
   const fetchMarkers = async () => {
     try {
-      const response = await fetch("/parkinzi.txt");
-      const text = await response.text();
-      const parsed: MarkerData[] = text.trim().split("\n").map((line) => {
-        const [id, lat, lon, popupText, zona, slobodnaMjesta] = line.split(";");
-        return {
-          id: parseInt(id),
-          position: [parseFloat(lat), parseFloat(lon)],
-          popupText,
-          zona: parseInt(zona),
-          slobodnaMjesta: parseInt(slobodnaMjesta),
-        };
-      });
-      setMarkers(parsed);
+      const response = await fetch("https://parkfind-backend.onrender.com/api/parking");
+const data = await response.json();
+const parsed = data.map((item: any) => ({
+  id: item.id,
+  position: [item.lat, item.lon],
+  popupText: item.name,
+  zona: item.zona,
+  slobodnaMjesta: item.slobodnaMjesta,
+}));
+setMarkers(parsed);
     } catch (error) {
       console.error("Greška pri učitavanju datoteke:", error);
     }
