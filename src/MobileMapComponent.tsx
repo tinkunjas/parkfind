@@ -3,7 +3,6 @@ import {
   MapContainer,
   TileLayer,
   Marker,
-  useMap,
   Popup
 } from "react-leaflet";
 import L from "leaflet";
@@ -12,6 +11,12 @@ import "leaflet-routing-machine";
 import "./MobileMapComponent.css";
 import SearchBar from "./MobileSearchBar";
 import MobileSidebar from "./MobileSidebar";
+import zoneIcons from "./components/ZoneIcons";
+import MobileParkingList from "./components/MobileParkingList";
+import NavigationInstruction from "./components/NavigationInstruction";
+import SearchResultMarker from "./components/SearchResultMarker";
+import MapResizer from "./components/MapResizer";
+import { setupRouting } from "./utils/CostumRouting"
 
 const defaultPosition: [number, number] = [45.815399, 15.966568];
 
@@ -26,23 +31,15 @@ const tileLayers = {
   dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
 };
 
-
-
-const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-  const R = 6371e3;
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-  const a = Math.sin(Δφ / 2) ** 2 +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
+const zoneLabels: Record<number, string> = {
+  1: "Zona 1",
+  2: "Zona 2",
+  3: "Zona 3",
+  4: "Zona 4",
+  5: "Garaža",
+  6: "Privatan parking",
+  7: "Javni pakring"
 };
-
 
 interface MarkerData {
   id: number;
@@ -52,52 +49,6 @@ interface MarkerData {
   zona: number;
   slobodnaMjesta: number;
 }
-
-const zoneIcons: Record<number, L.Icon> = {
-  1: new L.Icon({
-    iconUrl: "/1.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  }),
-  2: new L.Icon({
-    iconUrl: "/2.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  }),
-  3: new L.Icon({
-    iconUrl: "/3.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  }),
-  4: new L.Icon({
-    iconUrl: "/4.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  }),
-};
-
-const MapResizer = ({ trigger }: { trigger: boolean }) => {
-  const map = useMap();
-  useEffect(() => {
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 300);
-  }, [trigger, map]);
-  return null;
-};
-
 
 const MobileMapComponent: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -111,36 +62,33 @@ const MobileMapComponent: React.FC = () => {
   const [travelTime, setTravelTime] = useState<number | null>(null);
   const [searchText, setSearchText] = useState("");
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
-const [travelDistance, setTravelDistance] = useState<number | null>(null);
-const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
-const markerRefs = useRef<Record<number, L.Marker>>({});
-const [favorites, setFavorites] = useState<number[]>(() => {
-  try {
-    const stored = localStorage.getItem("favoriti");
-    return stored ? JSON.parse(stored) : [];
-  } catch (e) {
-    console.error("Greška pri učitavanju favorita:", e);
-    return [];
-  }
-});
-
-
-const toggleFavorite = (id: number) => {
-  setFavorites((prev) =>
-    prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-  );
-};
-
-
-
-const handleChangeMapStyle = () => {
-  if (tileStyle === "osm") setTileStyle("satellite");
-  else if (tileStyle === "satellite") setTileStyle("dark");
-  else setTileStyle("osm");
-};
-
+  const [travelDistance, setTravelDistance] = useState<number | null>(null);
+  const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
+  const markerRefs = useRef<Record<number, L.Marker>>({});
   const routingControlRef = useRef<any>(null);
   const mapRef = useRef<L.Map | null>(null);
+
+  const [favorites, setFavorites] = useState<number[]>(() => {
+    try {
+      const stored = localStorage.getItem("favoriti");
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.error("Gre\u0161ka pri u\u010ditavanju favorita:", e);
+      return [];
+    }
+  });
+
+  const toggleFavorite = (id: number) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+    );
+  };
+
+  const handleChangeMapStyle = () => {
+    if (tileStyle === "osm") setTileStyle("satellite");
+    else if (tileStyle === "satellite") setTileStyle("dark");
+    else setTileStyle("osm");
+  };
 
   const handleSearch = (lat: number, lon: number, name?: string) => {
     setSearchResult({ lat, lon, name });
@@ -155,19 +103,18 @@ const handleChangeMapStyle = () => {
         mapRef.current?.setView(position, 15);
       },
       (err) => {
-        console.error("Greška pri dohvaćanju lokacije:", err);
+        console.error("Gre\u0161ka pri dohva\u0107anju lokacije:", err);
         setUserPosition(defaultPosition);
       }
     );
   }, []);
-  
 
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         setUserPosition([pos.coords.latitude, pos.coords.longitude]);
       },
-      (err) => console.error("Greška pri praćenju lokacije:", err),
+      (err) => console.error("Gre\u0161ka pri pra\u0107enju lokacije:", err),
       {
         enableHighAccuracy: true,
         maximumAge: 1000,
@@ -179,45 +126,16 @@ const handleChangeMapStyle = () => {
   }, []);
 
   useEffect(() => {
-    if (!mapRef.current || !userPosition) return;
-  
-    if (routingControlRef.current) return;
-  
-    routingControlRef.current = L.Routing.control({
-      waypoints: [],
-      routeWhileDragging: false,
-      addWaypoints: false,
-      draggableWaypoints: false,
-      fitSelectedRoutes: false,
-      show: false,
-      createMarker: () => null,
-      lineOptions: {
-        styles: [{ color: "#2563eb", weight: 4, opacity: 1 }],
-      },
-      containerClassName: "custom-routing-container",
-    })
-      .on("routesfound", function (e: any) {
-        const summary = e.routes[0].summary;
-        const instructions =
-          e.routes[0].instructions || e.routes[0].segments?.flatMap((seg: any) => seg.steps) || [];
-  
-        setTravelTime(summary.totalTime);
-        setTravelDistance(summary.totalDistance);
-  
-        if (instructions.length > 0) {
-          setCurrentInstruction(instructions[0].instruction || instructions[0].text);
-        }
-      })
-      .on("routeselected", function (e: any) {
-        const steps = e.route.instructions || e.route.segments?.flatMap((s: any) => s.steps) || [];
-        if (steps.length > 0) {
-          setCurrentInstruction(steps[0].instruction || steps[0].text);
-        }
-      })
-      .addTo(mapRef.current);
-  
-    const container = routingControlRef.current.getContainer();
-    if (container) container.style.display = "none";
+    if (mapRef.current && userPosition) {
+      setupRouting({
+        map: mapRef.current,
+        userPosition,
+        routingControlRef,
+        setTravelTime,
+        setTravelDistance,
+        setCurrentInstruction
+      });
+    }
   }, [userPosition]);
   
 
@@ -225,15 +143,15 @@ const handleChangeMapStyle = () => {
     const fetchMarkers = async () => {
       try {
         const res = await fetch("https://parkfind-backend.onrender.com/api/parking");
-const data = await res.json();
-setMarkers(data);
+        const data = await res.json();
+        setMarkers(data);
       } catch (error) {
-        console.error("Greška pri učitavanju parkinga:", error);
+        console.error("Gre\u0161ka pri u\u010ditavanju parkinga:", error);
       }
     };
 
     fetchMarkers();
-const interval = setInterval(fetchMarkers, 1000);
+    const interval = setInterval(fetchMarkers, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -241,18 +159,9 @@ const interval = setInterval(fetchMarkers, 1000);
     try {
       localStorage.setItem("favoriti", JSON.stringify(favorites));
     } catch (e) {
-      console.error("Greška pri spremanju favorita:", e);
+      console.error("Gre\u0161ka pri spremanju favorita:", e);
     }
   }, [favorites]);
-  
-  if (!userPosition || markers.length === 0) {
-    return (
-      <div className="loading-screen">
-        <img src="/spinner.png" alt="Učitavanje..." className="spinner" />
-        Učitavanje karte...
-      </div>
-    );
-  }
 
   return (
     <div className="mobile-container">
@@ -261,7 +170,6 @@ const interval = setInterval(fetchMarkers, 1000);
       <button className="layer-style-button" onClick={handleChangeMapStyle}>
       <img src="/layer.png" alt="layer" />
 </button>
-
 
       <div className={`mobile-map-wrapper ${isFullscreen ? 'fullscreen' : ''}`}>
         <div className="mobile-map">
@@ -329,7 +237,7 @@ const interval = setInterval(fetchMarkers, 1000);
 
       <Popup>
         {marker.name}<br />
-        Zona: {marker.zona}<br />
+        {zoneLabels[marker.zona] || `Nepoznata zona (${marker.zona})`}<br />
         Slobodna mjesta: {marker.slobodnaMjesta}<br />
         <button
           className="popup-navigate-button"
@@ -348,15 +256,11 @@ const interval = setInterval(fetchMarkers, 1000);
               routingControlRef.current.route();
             }
             
-          
             if (userPosition) {
               const offsetLat = userPosition[0] - 0.0012;
               mapRef.current?.setView([offsetLat, userPosition[1]], 16, { animate: true });
             }
           }}
-          
-          
-          
         >
           <img src="/directiongo2.png" alt="go" style={{ width: "18px", height: "18px" }} />
           Započni navigaciju
@@ -390,88 +294,25 @@ const interval = setInterval(fetchMarkers, 1000);
 ))}
 
 {searchResult && (
-  <Marker
-    position={[searchResult.lat, searchResult.lon]}
-    icon={new L.Icon({
-      iconUrl: "/marker.png",
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    })}
-  >
-   <Popup maxWidth={200}>
-  <div style={{ fontSize: "14px" }}>
-    {searchResult.name && searchResult.name.length > 60
-      ? `${searchResult.name.substring(0, 60)}...`
-      : searchResult.name || "Odabrana lokacija"}
-    <br />
-    <button
-      className="popup-navigate-button"
-      onClick={(e) => {
-        e.stopPropagation();
-        setIsFullscreen(true);
-        setRouteTarget([searchResult.lat, searchResult.lon]);
-        mapRef.current?.closePopup();
-
-        if (routingControlRef.current && userPosition) {
-          routingControlRef.current.spliceWaypoints(0, 2);
-          routingControlRef.current.setWaypoints([
-            L.latLng(userPosition[0], userPosition[1]),
-            L.latLng(searchResult.lat, searchResult.lon),
-          ]);
-          routingControlRef.current.route();
-        }
-      }}
-    >
-      <img src="/directiongo2.png" alt="go" style={{ width: "18px", height: "18px" }} />
-      Započni navigaciju
-    </button>
-    <a
-      href={`https://www.google.com/maps/dir/?api=1&destination=${searchResult.lat},${searchResult.lon}&travelmode=driving`}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "6px",
-        textDecoration: "none",
-        marginTop: "8px",
-        fontSize: "14px"
-      }}
-    >
-      <img src="/gmaps.png" alt="gmaps" className="google-maps-icon" />
-      Otvori u Google Maps
-    </a>
-  </div>
-</Popup>
-  </Marker>
+  <SearchResultMarker
+    searchResult={searchResult}
+    setIsFullscreen={setIsFullscreen}
+    setRouteTarget={setRouteTarget}
+    userPosition={userPosition}
+    routingControlRef={routingControlRef}
+    mapRef={mapRef}
+  />
 )}
-
           </MapContainer>
 
           <SearchBar onSearch={handleSearch} />
-          {currentInstruction && (
-  <div className="navigation-instruction">
-    <p>{currentInstruction}</p>
-
-    {routeTarget && (
-      <div style={{ fontSize: "13px", color: "#333", marginBottom: "4px" }}>
-        Slobodna mjesta: {
-          markers.find(m =>
-            m.lat === routeTarget[0] && m.lon === routeTarget[1]
-          )?.slobodnaMjesta ?? "?"
-        }
-      </div>
-    )}
-
-    {travelTime !== null && travelDistance !== null && (
-      <small style={{ color: "#333" }}>
-        {Math.round(travelTime / 60)} min • {(travelDistance / 1000).toFixed(1)} km
-      </small>
-    )}
-  </div>
-)}
+          <NavigationInstruction
+  instruction={currentInstruction}
+  routeTarget={routeTarget}
+  markers={markers}
+  travelTime={travelTime}
+  travelDistance={travelDistance}
+/>
 
 
 <button
@@ -508,136 +349,26 @@ const interval = setInterval(fetchMarkers, 1000);
       </div>
 
       {!isFullscreen && (
-  <div className="mobile-content">
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <h3 style={{ marginBottom: "1rem", marginLeft: "7px", color: "#000" }}>🅿️ Lista parkinga</h3>
-      <div style={{ display: "flex", gap: "8px" }}>
-        <select
-          value={filterZona ?? ""}
-          onChange={(e) => setFilterZona(e.target.value ? Number(e.target.value) : null)}
-          style={{ marginRight: "-4px"}}
-        >
-          <option value="">Sve zone</option>
-          <option value="1">Zona 1</option>
-          <option value="2">Zona 2</option>
-          <option value="3">Zona 3</option>
-          <option value="4">Zona 4</option>
-        </select>
-
-        <select
-  value={showOnlyFavorites ? "favorites" : ""}
-  onChange={(e) => setShowOnlyFavorites(e.target.value === "favorites")}
-  style={{ marginRight: "8px" }}
->
-  <option value="">Svi parkinzi</option>
-  <option value="favorites">Favoriti ❤️</option>
-</select>
-
-      </div>
+        <MobileParkingList
+          markers={markers}
+          userPosition={userPosition}
+          filterZona={filterZona}
+          showOnlyFavorites={showOnlyFavorites}
+          searchText={searchText}
+          favorites={favorites}
+          toggleFavorite={toggleFavorite}
+          mapRef={mapRef}
+          markerRefs={markerRefs}
+          setIsFullscreen={setIsFullscreen}
+          setRouteTarget={setRouteTarget}
+          routingControlRef={routingControlRef}
+          setFilterZona={setFilterZona}
+          setShowOnlyFavorites={setShowOnlyFavorites}
+          setSearchText={setSearchText}
+        />
+      )}
     </div>
-
-    <input
-  type="text"
-  className="mobile-parking-search-input"
-  placeholder="Pretraži parking..."
-  value={searchText}
-  onChange={(e) => setSearchText(e.target.value)}
-/>
-
-    {[...markers]
-      .filter(marker => {
-        if (filterZona !== null && marker.zona !== filterZona) return false;
-        if (showOnlyFavorites && !favorites.includes(marker.id)) return false;
-        if (searchText && !marker.name.toLowerCase().includes(searchText.toLowerCase())) return false;
-        return true;
-      })      
-      .sort((a, b) => {
-        if (!userPosition) return 0;
-        const distA = getDistance(userPosition[0], userPosition[1], a.lat, a.lon);
-        const distB = getDistance(userPosition[0], userPosition[1], b.lat, b.lon);
-        return distA - distB;
-      })
-      .map((marker) => (
-        <div
-  key={marker.id}
-  className="parking-item"
-  style={{ cursor: "pointer" }}
-  onClick={(e) => {
-    if ((e.target as HTMLElement).closest(".navigate-button")) return;
-
-    const offsetLat = marker.lat - 0.0008;
-    if (mapRef.current) {
-      const mapInstance = mapRef.current;
-      mapInstance.closePopup();
-      mapInstance.setView([offsetLat, marker.lon], 16, { animate: true });
-
-      const handleMoveEnd = () => {
-        markerRefs.current[marker.id]?.openPopup();
-        mapInstance.off("moveend", handleMoveEnd);
-      };
-
-      mapInstance.on("moveend", handleMoveEnd);
-    }
-  }}
->
-<div>
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-    <div style={{ fontWeight: "bold", color: "#000" }}>{marker.name}</div>
-    <button
-className="heart-button"
-onClick={(e) => {
-  e.stopPropagation();
-  toggleFavorite(marker.id);
-}}
->
-      {favorites.includes(marker.id) ? "❤️" : "🤍"}
-    </button>
-  </div>
-
-  <div style={{ fontSize: "13px", color: "#444" }}>
-    Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
-  </div>
-
-  {userPosition && (
-    <div style={{ fontSize: "13px", color: "#444" }}>
-      {(getDistance(userPosition[0], userPosition[1], marker.lat, marker.lon) / 1000).toFixed(2)} km udaljeno
-    </div>
-  )}
-</div>
-
-
-<button
-  className="navigate-button"
-  onClick={(e) => {
-    e.stopPropagation();
-    setIsFullscreen(true);
-    setRouteTarget([marker.lat, marker.lon]);
-    mapRef.current?.closePopup();
-
-    if (routingControlRef.current && userPosition) {
-      routingControlRef.current.spliceWaypoints(0, 2);
-      routingControlRef.current.setWaypoints([
-        L.latLng(userPosition[0], userPosition[1]),
-        L.latLng(marker.lat, marker.lon),
-      ]);
-      routingControlRef.current.route();
-    }
-
-    if (userPosition) {
-      const offsetLat = userPosition[0] - 0.0012;
-      mapRef.current?.setView([offsetLat, userPosition[1]], 16, { animate: true });
-    }
-  }}
->
-
-    <img src="/directiongo2.png" alt="go" />
-  </button>
-  </div>
-      ))}
-      </div>
-    )}
-  </div>
   );
-  };
-  
+};
+
 export default MobileMapComponent;

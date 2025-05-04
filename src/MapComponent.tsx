@@ -4,7 +4,6 @@ import {
   TileLayer,
   Marker,
   Popup,
-  useMap,
   ZoomControl,
   Tooltip,
 } from "react-leaflet";
@@ -12,6 +11,9 @@ import SearchBar from "./SearchBar";
 import Sidebar from "./Sidebar";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import ParkingList from "./components/ParkingList";
+import MapMover from "./components/MapMover";
+import zoneIcons from "./components/ZoneIcons";
 
 const defaultPosition: [number, number] = [45.815399, 15.966568];
 
@@ -19,6 +21,17 @@ const croatiaBounds: [[number, number], [number, number]] = [
   [42.3, 13.3],
   [46.6, 19.5],
 ];
+
+const zoneLabels: Record<number, string> = {
+  1: "Zona 1",
+  2: "Zona 2",
+  3: "Zona 3",
+  4: "Zona 4",
+  5: "Garaža",
+  6: "Privatan parking",
+  7: "Javni parking",
+};
+
 
 const userIcon = new L.Icon({
   iconUrl: "/user.png",
@@ -28,69 +41,6 @@ const userIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-
-function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
-  const R = 6371e3;
-  const φ1 = (lat1 * Math.PI) / 180;
-  const φ2 = (lat2 * Math.PI) / 180;
-  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) *
-    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
-}
-
-const MapMover = ({ lat, lon, name }: { lat: number; lon: number; name?: string }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    const target = [lat, lon] as [number, number];
-
-    const customIcon = new L.Icon({
-      iconUrl: "/marker.png",
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    });
-
-    map.setView(target, 15);
-
-    const marker = L.marker(target, { icon: customIcon }).addTo(map);
-
-    const popupContent = document.createElement("div");
-    popupContent.style.fontSize = "14px";
-
-    popupContent.innerHTML = `
-      <div>
-        ${name?.length ? name.length > 60 ? name.substring(0, 60) + "..." : name : "Odabrana lokacija"}
-        <br/>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving" 
-           target="_blank" rel="noopener noreferrer" 
-           style="display: flex; align-items: center; gap: 6px; text-decoration: none; margin-top: 8px; color: #2563eb;">
-          <img src="/gmaps.png" alt="gmaps" class="google-maps-icon" />
-          Otvori u Google Maps
-        </a>
-      </div>
-    `;
-
-    marker.bindPopup(popupContent).openPopup();
-
-    return () => {
-      map.removeLayer(marker);
-    };
-  }, [lat, lon, name, map]);
-
-  return null;
-};
-
-
 interface MarkerData {
   id: number;
   position: [number, number];
@@ -98,41 +48,6 @@ interface MarkerData {
   zona: number;
   slobodnaMjesta: number;
 }
-
-const zoneIcons: Record<number, L.Icon> = {
-  1: new L.Icon({
-    iconUrl: "/1.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  }),
-  2: new L.Icon({
-    iconUrl: "/2.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  }),
-  3: new L.Icon({
-    iconUrl: "/3.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  }),
-  4: new L.Icon({
-    iconUrl: "/4.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  }),
-};
 
 const MapComponent: React.FC = () => {
   const lightUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -245,165 +160,20 @@ setMarkers(parsed);
     <div style={{ position: "relative", width: "100vw", height: "100vh", overflow: "hidden" }}>
       <SearchBar onSearch={handleSearch} />
 
-      <div
-        style={{
-          position: "absolute",
-          top: "60px",
-          left: "10px",
-          width: "300px",
-          maxHeight: "65vh",
-          overflowY: "auto",
-          zIndex: 1000,
-          backgroundColor: "white",
-          borderRadius: "10px",
-          padding: "12px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-        }}
-      >
-        <h3 style={{ marginBottom: "1rem", color: "#111" }}>🅿️ Lista parkinga</h3>
-        <input
-  type="text"
-  placeholder="Pretraži parking..."
-  value={searchText}
-  onChange={(e) => setSearchText(e.target.value)}
-  style={{
-    width: 'calc(100% - 24px)',
-    color: '#000',
-    margin: '0 12px 12px 12px',
-    padding: '6px 10px',
-    border: '1px solid #ccc',
-    borderRadius: '18px',
-    fontSize: '14px',
-    boxSizing: 'border-box',
-    backgroundColor: '#ffffff'
-  }}
+      <ParkingList
+  markers={markers}
+  userPosition={userPosition}
+  searchText={searchText}
+  setSearchText={setSearchText}
+  selectedZone={selectedZone}
+  setSelectedZone={setSelectedZone}
+  showOnlyFavorites={showOnlyFavorites}
+  setShowOnlyFavorites={setShowOnlyFavorites}
+  favorites={favorites}
+  toggleFavorite={toggleFavorite}
+  mapRef={mapRef}
+  markerRefs={markerRefs}
 />
-
-
-        <div style={{ marginBottom: "12px", display: "flex", gap: "8px" }}>
-        <select
-  value={selectedZone ?? ""}
-  onChange={(e) =>
-    setSelectedZone(e.target.value ? Number(e.target.value) : null)
-  }
-  style={{
-    padding: '6px 10px',
-    border: '1px solid #ccc',
-    borderRadius: '18px',
-    fontSize: '14px',
-    backgroundColor: '#ffffff',
-    color: '#000',
-    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E")`,
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'right 10px center',
-    backgroundSize: '10px 6px',
-    appearance: 'none',
-    WebkitAppearance: 'none',
-    MozAppearance: 'none',
-    flex: 1
-  }}
-          >
-            <option value="">Sve zone</option>
-            <option value="1">Zona 1</option>
-            <option value="2">Zona 2</option>
-            <option value="3">Zona 3</option>
-            <option value="4">Zona 4</option>
-          </select>
-
-          <select
-            onChange={(e) => {
-              setShowOnlyFavorites(e.target.value === "favorites");
-            }}
-            style={{
-              padding: '6px 10px',
-              border: '1px solid #ccc',
-              borderRadius: '18px',
-              fontSize: '14px',
-              backgroundColor: '#ffffff',
-              color: '#000',
-              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'right 10px center',
-              backgroundSize: '10px 6px',
-              appearance: 'none',
-              WebkitAppearance: 'none',
-              MozAppearance: 'none',
-              flex: 1
-            }}
-          >
-          <option value="">Svi parkinzi</option>
-          <option value="favorites">Favoriti ❤️</option>
-          </select>
-        </div>
-
-        {[...filtriraniMarkeri]
-  .sort((a, b) => {
-    if (!userPosition) return 0;
-    const distA = getDistance(userPosition[0], userPosition[1], a.position[0], a.position[1]);
-    const distB = getDistance(userPosition[0], userPosition[1], b.position[0], b.position[1]);
-    return distA - distB;
-  })
-  .map((marker) => (
-
-  <div
-    key={marker.id}
-    style={{
-      backgroundColor: "#f9fafb",
-      padding: "8px",
-      marginBottom: "6px",
-      borderRadius: "8px",
-      cursor: "pointer",
-    }}
-    onClick={() => {
-      const map = mapRef.current;
-      if (map) {
-        const [lat, lon] = marker.position;
-        map.whenReady(() => {
-          map.closePopup();
-          map.setView([lat, lon], 16, { animate: true });
-        
-          const handleMoveEnd = () => {
-            markerRefs.current[marker.id]?.openPopup();
-            map.off("moveend", handleMoveEnd);
-          };
-        
-          map.on("moveend", handleMoveEnd);
-        });
-        
-      }
-    }}
-  >
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <div style={{ fontWeight: "bold" }}>{marker.popupText}</div>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          toggleFavorite(marker.id);
-        }}
-        style={{
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          fontSize: "18px",
-        }}
-      >
-        {favorites.includes(marker.id) ? "❤️" : "🤍"}
-      </button>
-    </div>
-
-    <div style={{ fontSize: "13px", color: "#444" }}>
-      Zona: {marker.zona} | Slobodna mjesta: {marker.slobodnaMjesta}
-    </div>
-
-    {userPosition && (
-      <div style={{ fontSize: "13px", color: "#444" }}>
-        {(getDistance(userPosition[0], userPosition[1], marker.position[0], marker.position[1]) / 1000).toFixed(2)} km udaljeno
-      </div>
-    )}
-  </div>
-))}
-
-      </div>
 
       <Sidebar
         isOpen={sidebarOpen}
@@ -500,7 +270,7 @@ setMarkers(parsed);
     <Popup maxWidth={250}>
   <div style={{ fontSize: "14px" }}>
     {marker.popupText}<br />
-    Zona: {marker.zona}<br />
+    {zoneLabels[marker.zona] || `Nepoznata zona (${marker.zona})`}<br />
     Slobodna mjesta: {marker.slobodnaMjesta}<br />
 
     <a
