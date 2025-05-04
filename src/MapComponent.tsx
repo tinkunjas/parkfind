@@ -251,7 +251,7 @@ setMarkers(parsed);
           top: "60px",
           left: "10px",
           width: "300px",
-          maxHeight: "70vh",
+          maxHeight: "65vh",
           overflowY: "auto",
           zIndex: 1000,
           backgroundColor: "white",

@@ -21,10 +21,10 @@ const MobileTeam: React.FC = () => {
 
         <div className="support-form">
           <p>Ime: Tin Kunjas</p>
-          <p>Uloga: Fullstack Developer</p>
+          <p>Uloga: Frontend Developer</p>
           <br />
           <p>Ime: Hrvoje Staniša</p>
-          <p>Uloga: Mobile Developer and database manager</p>
+          <p>Uloga: Business plan and database manager</p>
           <br />
           <p>Ime: Martino Pranjić</p>
           <p>Uloga: Hardware Specialist</p>
