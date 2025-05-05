@@ -163,6 +163,17 @@ const MobileMapComponent: React.FC = () => {
     }
   }, [favorites]);
 
+  if (!userPosition) {
+    return (
+      <div className="loading-screen">
+        <img src="/spinner.png" alt="Učitavanje..." className="spinner" />
+        <p style={{ marginTop: "16px", fontSize: "16px", color: "#333", fontWeight: 500 }}>
+          Učitavanje karte...
+        </p>
+      </div>
+    );    
+  }  
+
   return (
     <div className="mobile-container">
       <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
