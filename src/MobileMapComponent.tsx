@@ -150,7 +150,7 @@ const MobileMapComponent: React.FC = () => {
   lon: item.lon,
   name: item.name,
   zona: item.zona,
-  slobodnaMjesta: item.slobodnamjesta,
+  slobodnaMjesta: item.slobodnaMjesta ?? item.slobodnamjesta ?? 0,
 }));
 setMarkers(parsed);
       } catch (error) {
@@ -159,7 +159,7 @@ setMarkers(parsed);
     };
 
     fetchMarkers();
-    const interval = setInterval(fetchMarkers, 0);
+    const interval = setInterval(fetchMarkers, 1000);
     return () => clearInterval(interval);
   }, []);
 

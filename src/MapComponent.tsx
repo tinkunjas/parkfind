@@ -94,7 +94,7 @@ const parsed = data.map((item: any) => ({
   position: [item.lat, item.lon],
   popupText: item.name,
   zona: item.zona,
-  slobodnaMjesta: item.slobodnamjesta,
+  slobodnaMjesta: item.slobodnaMjesta ?? item.slobodnamjesta ?? 0,
 }));
 setMarkers(parsed);
     } catch (error) {
@@ -122,7 +122,7 @@ setMarkers(parsed);
 
   useEffect(() => {
     fetchMarkers();
-    const interval = setInterval(fetchMarkers, 0);
+    const interval = setInterval(fetchMarkers, 1000);
     return () => clearInterval(interval);
   }, []);
 
