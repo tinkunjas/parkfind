@@ -144,9 +144,17 @@ const MobileMapComponent: React.FC = () => {
       try {
         const res = await fetch("https://parkfind-backend.onrender.com/api/parking");
         const data = await res.json();
-        setMarkers(data);
+        const parsed = data.map((item: any) => ({
+  id: item.id,
+  lat: item.lat,
+  lon: item.lon,
+  name: item.name,
+  zona: item.zona,
+  slobodnaMjesta: item.slobodnamjesta,
+}));
+setMarkers(parsed);
       } catch (error) {
-        console.error("Gre\u0161ka pri u\u010ditavanju parkinga:", error);
+        console.error("Greska pri ucitavanju parkinga:", error);
       }
     };
 

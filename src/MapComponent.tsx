@@ -94,11 +94,11 @@ const parsed = data.map((item: any) => ({
   position: [item.lat, item.lon],
   popupText: item.name,
   zona: item.zona,
-  slobodnaMjesta: item.slobodnaMjesta,
+  slobodnaMjesta: item.slobodnamjesta,
 }));
 setMarkers(parsed);
     } catch (error) {
-      console.error("Greška pri učitavanju datoteke:", error);
+      console.error("Greska pri ucitavanju datoteke:", error);
     }
   };
 
