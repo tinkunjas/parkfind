@@ -159,7 +159,7 @@ setMarkers(parsed);
     };
 
     fetchMarkers();
-    const interval = setInterval(fetchMarkers, 1000);
+    const interval = setInterval(fetchMarkers, 0);
     return () => clearInterval(interval);
   }, []);
 
