@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Sidebar from "../Sidebar";
-import "./pageStyles.css";
+import Sidebar from "../components/sidebar/Sidebar";
+import "../styles/pageStyles.css";
 
 const Team: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);

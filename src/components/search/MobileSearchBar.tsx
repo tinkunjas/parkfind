@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "./SearchBar.css";
+import "../../styles/MobileSearchBar.css";
 
 interface Props {
   onSearch?: (lat: number, lon: number, name?: string) => void;
@@ -75,7 +75,6 @@ const SearchBar: React.FC<Props> = ({ onSearch }) => {
       <button onClick={handleSearch} className="search-button">
   <img src="/search-icon.png" alt="Search" style={{ width: "24px", height: "24px" }} />
 </button>
-
     </div>
   );
 };

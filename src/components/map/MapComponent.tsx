@@ -7,13 +7,13 @@ import {
   ZoomControl,
   Tooltip,
 } from "react-leaflet";
-import SearchBar from "./SearchBar";
-import Sidebar from "./Sidebar";
+import SearchBar from "../search/SearchBar";
+import Sidebar from "../sidebar/Sidebar";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import ParkingList from "./components/ParkingList";
-import MapMover from "./components/MapMover";
-import zoneIcons from "./components/ZoneIcons";
+import ParkingList from "./ParkingList";
+import MapMover from "./MapMover";
+import ZoneIcons from "./ZoneIcons";
 
 const defaultPosition: [number, number] = [45.815399, 15.966568];
 
@@ -253,7 +253,7 @@ setMarkers(parsed);
   <Marker
     key={marker.id}
     position={marker.position}
-    icon={zoneIcons[marker.zona]}
+    icon={ZoneIcons[marker.zona]}
     title={marker.popupText}
     ref={(ref) => {
       if (ref) markerRefs.current[marker.id] = ref;

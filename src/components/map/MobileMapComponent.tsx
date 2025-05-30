@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -8,15 +8,16 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine";
-import "./MobileMapComponent.css";
-import SearchBar from "./MobileSearchBar";
-import MobileSidebar from "./MobileSidebar";
-import zoneIcons from "./components/ZoneIcons";
-import MobileParkingList from "./components/MobileParkingList";
-import NavigationInstruction from "./components/NavigationInstruction";
-import SearchResultMarker from "./components/SearchResultMarker";
-import MapResizer from "./components/MapResizer";
-import { setupRouting } from "./utils/CostumRouting"
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
+import "../../styles/MobileMapComponent.css";
+import SearchBar from "../search/MobileSearchBar";
+import MobileSidebar from "../sidebar/MobileSidebar";
+import ZoneIcons from "./ZoneIcons";
+import MobileParkingList from "./MobileParkingList";
+import NavigationInstruction from "./NavigationInstruction";
+import SearchResultMarker from "./SearchResultMarker";
+import MapResizer from "./MapResizer";
+import { setupRouting } from "../../utils/CostumRouting";
 
 const defaultPosition: [number, number] = [45.815399, 15.966568];
 
@@ -248,7 +249,7 @@ setMarkers(parsed);
     <Marker
   key={marker.id}
   position={[marker.lat, marker.lon]}
-  icon={zoneIcons[marker.zona]}
+  icon={ZoneIcons[marker.zona]}
   ref={(ref) => {
     if (ref) markerRefs.current[marker.id] = ref;
   }}

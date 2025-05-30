@@ -1,5 +1,5 @@
 import React from "react";
-import "./MobileSidebar.css";
+import "../../styles/MobileSidebar.css";
 import { Link } from "react-router-dom";
 
 interface MobileSidebarProps {

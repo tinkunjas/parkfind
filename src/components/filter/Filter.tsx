@@ -1,5 +1,5 @@
 import React from "react";
-import "./Filter.css";
+import "../../styles/Filter.css";
 
 interface FilterProps {
   selectedZone: number | null;

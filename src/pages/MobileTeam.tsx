@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import MobileSidebar from "../MobileSidebar";
-import "./pageStyles.css";
+import MobileSidebar from "../components/sidebar/MobileSidebar";
+import "../styles/pageStyles.css";
 
 const MobileTeam: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);

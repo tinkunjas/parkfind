@@ -1,11 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import MapComponent from "./MapComponent";
-import MobileMapComponent from "./MobileMapComponent";
+import MapComponent from "./components/map/MapComponent";
+import MobileMapComponent from "./components/map/MobileMapComponent";
 import Team from "./pages/Team";
-import SupportPage from "./pages/SupportPage";
-import { isMobile } from "./isMobile";
 import MobileTeam from "./pages/MobileTeam";
-import MobileSupportPage from "./pages/MobileSupportPage"
+import SupportPage from "./pages/SupportPage";
+import MobileSupportPage from "./pages/MobileSupportPage";
+import { isMobile } from "./utils/isMobile";
 
 function App() {
   return (

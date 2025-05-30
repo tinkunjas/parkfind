@@ -1,6 +1,6 @@
 import React from "react";
 import L from "leaflet";
-import { getDistance } from "../utils/getDistance";
+import { getDistance } from "../../utils/getDistance";
 
 interface MarkerData {
   id: number;

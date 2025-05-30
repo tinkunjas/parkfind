@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./Sidebar.css";
+import "../../styles/Sidebar.css";
 import { Link } from "react-router-dom";
 
 interface SidebarProps {
