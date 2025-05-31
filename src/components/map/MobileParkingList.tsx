@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import L from "leaflet";
 import { getDistance } from "../../utils/getDistance";
 
@@ -12,14 +12,14 @@ interface MarkerData {
 }
 
 const zoneLabels: Record<number, string> = {
-    1: "Zona 1",
-    2: "Zona 2",
-    3: "Zona 3",
-    4: "Zona 4",
-    5: "Garaža",
-    6: "Privatan parking",
-    7: "Javni parking"
-};  
+  1: "Zona 1",
+  2: "Zona 2",
+  3: "Zona 3",
+  4: "Zona 4",
+  5: "Garaža",
+  6: "Privatan parking",
+  7: "Javni parking",
+};
 
 interface MobileParkingListProps {
   markers: MarkerData[];
@@ -54,16 +54,28 @@ const MobileParkingList: React.FC<MobileParkingListProps> = ({
   markerRefs,
   setIsFullscreen,
   setRouteTarget,
-  routingControlRef
+  routingControlRef,
 }) => {
+  const isMovingRef = useRef(false);
+
   return (
     <div className="mobile-content">
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h3 style={{ marginBottom: "1rem", marginLeft: "7px", color: "#000" }}>🅿️ Lista parkinga</h3>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h3 style={{ marginBottom: "1rem", marginLeft: "7px", color: "#000" }}>
+          🅿️ Lista parkinga
+        </h3>
         <div style={{ display: "flex", gap: "8px" }}>
           <select
             value={filterZona ?? ""}
-            onChange={(e) => setFilterZona(e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) =>
+              setFilterZona(e.target.value ? Number(e.target.value) : null)
+            }
             style={{ marginRight: "-4px" }}
           >
             <option value="">Sve zone</option>
@@ -76,7 +88,6 @@ const MobileParkingList: React.FC<MobileParkingListProps> = ({
             <option value="7">Javni</option>
           </select>
 
-          {/* NOVI FAVORITE TOGGLE */}
           <button
             className={`favorites-toggle ${showOnlyFavorites ? "active" : ""}`}
             onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
@@ -98,13 +109,27 @@ const MobileParkingList: React.FC<MobileParkingListProps> = ({
         .filter((marker) => {
           if (filterZona !== null && marker.zona !== filterZona) return false;
           if (showOnlyFavorites && !favorites.includes(marker.id)) return false;
-          if (searchText && !marker.name.toLowerCase().includes(searchText.toLowerCase())) return false;
+          if (
+            searchText &&
+            !marker.name.toLowerCase().includes(searchText.toLowerCase())
+          )
+            return false;
           return true;
         })
         .sort((a, b) => {
           if (!userPosition) return 0;
-          const distA = getDistance(userPosition[0], userPosition[1], a.lat, a.lon);
-          const distB = getDistance(userPosition[0], userPosition[1], b.lat, b.lon);
+          const distA = getDistance(
+            userPosition[0],
+            userPosition[1],
+            a.lat,
+            a.lon
+          );
+          const distB = getDistance(
+            userPosition[0],
+            userPosition[1],
+            b.lat,
+            b.lon
+          );
           return distA - distB;
         })
         .map((marker) => (
@@ -113,23 +138,54 @@ const MobileParkingList: React.FC<MobileParkingListProps> = ({
             className="parking-item"
             style={{ cursor: "pointer" }}
             onClick={(e) => {
-              if ((e.target as HTMLElement).closest(".navigate-button")) return;
-              const offsetLat = marker.lat - 0.0008;
-              if (mapRef.current) {
+              try {
+                if (isMovingRef.current) return;
+
+                if ((e.target as HTMLElement).closest(".navigate-button"))
+                  return;
+
+                if (!mapRef.current) return;
+
+                isMovingRef.current = true;
+
                 const mapInstance = mapRef.current;
+                const offsetLat = marker.lat - 0.0008;
+
                 mapInstance.closePopup();
-                mapInstance.setView([offsetLat, marker.lon], 16, { animate: true });
+                mapInstance.setView([offsetLat, marker.lon], 16, {
+                  animate: true,
+                });
+
                 const handleMoveEnd = () => {
-                  markerRefs.current[marker.id]?.openPopup();
+                  try {
+                    if (markerRefs.current[marker.id]) {
+                      markerRefs.current[marker.id].openPopup();
+                    }
+                  } catch (popupErr) {
+                    console.error("Greška pri otvaranju popupa:", popupErr);
+                  }
+                  isMovingRef.current = false;
                   mapInstance.off("moveend", handleMoveEnd);
                 };
+
                 mapInstance.on("moveend", handleMoveEnd);
+              } catch (error) {
+                console.error("Greška pri kliku na parking:", error);
+                isMovingRef.current = false;
               }
             }}
           >
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontWeight: "bold", color: "#000" }}>{marker.name}</div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ fontWeight: "bold", color: "#000" }}>
+                  {marker.name}
+                </div>
                 <button
                   className="heart-button"
                   onClick={(e) => {
@@ -141,11 +197,21 @@ const MobileParkingList: React.FC<MobileParkingListProps> = ({
                 </button>
               </div>
               <div style={{ fontSize: "13px", color: "#444" }}>
-                {zoneLabels[marker.zona] || `Nepoznata (${marker.zona})`} | Slobodna mjesta: {marker.slobodnaMjesta}
+                {zoneLabels[marker.zona] ||
+                  `Nepoznata (${marker.zona})`}{" "}
+                | Slobodna mjesta: {marker.slobodnaMjesta}
               </div>
               {userPosition && (
                 <div style={{ fontSize: "13px", color: "#444" }}>
-                  {(getDistance(userPosition[0], userPosition[1], marker.lat, marker.lon) / 1000).toFixed(2)} km udaljeno
+                  {(getDistance(
+                    userPosition[0],
+                    userPosition[1],
+                    marker.lat,
+                    marker.lon
+                  ) /
+                    1000
+                  ).toFixed(2)}{" "}
+                  km udaljeno
                 </div>
               )}
             </div>
@@ -168,7 +234,11 @@ const MobileParkingList: React.FC<MobileParkingListProps> = ({
 
                 if (userPosition) {
                   const offsetLat = userPosition[0] - 0.0012;
-                  mapRef.current?.setView([offsetLat, userPosition[1]], 16, { animate: true });
+                  mapRef.current?.setView(
+                    [offsetLat, userPosition[1]],
+                    16,
+                    { animate: true }
+                  );
                 }
               }}
             >

@@ -74,7 +74,7 @@ const MobileMapComponent: React.FC = () => {
       const stored = localStorage.getItem("favoriti");
       return stored ? JSON.parse(stored) : [];
     } catch (e) {
-      console.error("Gre\u0161ka pri u\u010ditavanju favorita:", e);
+      console.error("Greska pri ucitavanju favorita:", e);
       return [];
     }
   });
@@ -104,7 +104,7 @@ const MobileMapComponent: React.FC = () => {
         mapRef.current?.setView(position, 15);
       },
       (err) => {
-        console.error("Gre\u0161ka pri dohva\u0107anju lokacije:", err);
+        console.error("Greska pri dohvacanju lokacije:", err);
         setUserPosition(defaultPosition);
       }
     );
@@ -115,7 +115,7 @@ const MobileMapComponent: React.FC = () => {
       (pos) => {
         setUserPosition([pos.coords.latitude, pos.coords.longitude]);
       },
-      (err) => console.error("Gre\u0161ka pri pra\u0107enju lokacije:", err),
+      (err) => console.error("Greska pri pracenju lokacije:", err),
       {
         enableHighAccuracy: true,
         maximumAge: 1000,
@@ -168,7 +168,7 @@ setMarkers(parsed);
     try {
       localStorage.setItem("favoriti", JSON.stringify(favorites));
     } catch (e) {
-      console.error("Gre\u0161ka pri spremanju favorita:", e);
+      console.error("Greska pri spremanju favorita:", e);
     }
   }, [favorites]);
 
