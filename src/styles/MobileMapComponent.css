@@ -189,9 +189,9 @@
 
 
 .mobile-content select {
-  padding: 4px 0px;
+  padding: 4px 2px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 18px;
   background-color: white;
   color: #333;
   font-size: 12px;
@@ -216,7 +216,7 @@
   height: 38px;
   border: none;
   border-radius: 50%;
-  background-color:#5e8ef5;
+  background-color:#2563eb;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   z-index: 1000;
@@ -325,17 +325,128 @@
   width: calc(100% - 24px);
   margin: 0 12px 12px 12px;
   color: #111;
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 18px;
-  font-size: 14px;
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  font-size: 15px;
   box-sizing: border-box;
   background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
+
+.mobile-parking-search-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  transform: scale(1.01);
+}
+
+.mobile-parking-search-input::placeholder {
+  color: #9ca3af;
+}
+
 .google-maps-icon {
   width: 18px;
   height: 18px;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   object-fit: contain;
+}
+
+.center-user-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@keyframes buttonClickPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.fullscreen-toggle.clicked,
+.center-user-button.clicked {
+  animation: buttonClickPulse 0.3s ease;
+}
+
+.parking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.parking-item:active {
+  transform: scale(0.96);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.distance {
+  color: #999;
+  font-size: 12px;
+}
+
+.parking-type {
+  background-color: #2563eb;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.navigate-button img {
+  width: 26px;
+  height: 26px;
+}
+
+.heart-button {
+  font-size: 26px;
+}
+
+.parking-item {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.parking-search-input {
+  padding: 14px 20px;
+  font-size: 16px;
+}
+.filter-row {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #fff;
+  padding: 8px 0;
+}
+
+.favorites-toggle {
+  background-color: #fff;
+  border: 1px solid #2563eb;
+  color: #2563eb;
+  padding: 4px 6px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.favorites-toggle.active {
+  background-color: #2563eb;
+  color: #fff;
 }

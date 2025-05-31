@@ -19,7 +19,7 @@ const zoneLabels: Record<number, string> = {
     5: "Garaža",
     6: "Privatan parking",
     7: "Javni parking"
-  };  
+};  
 
 interface MobileParkingListProps {
   markers: MarkerData[];
@@ -63,29 +63,26 @@ const MobileParkingList: React.FC<MobileParkingListProps> = ({
         <div style={{ display: "flex", gap: "8px" }}>
           <select
             value={filterZona ?? ""}
-            onChange={(e) =>
-              setFilterZona(e.target.value ? Number(e.target.value) : null)
-            }
+            onChange={(e) => setFilterZona(e.target.value ? Number(e.target.value) : null)}
             style={{ marginRight: "-4px" }}
           >
-           <option value="">Sve zone</option>
-<option value="1">Zona 1</option>
-<option value="2">Zona 2</option>
-<option value="3">Zona 3</option>
-<option value="4">Zona 4</option>
-<option value="5">Garaža</option>
-<option value="6">Privatan</option>
-<option value="7">Javni</option>
+            <option value="">Sve zone</option>
+            <option value="1">Zona 1</option>
+            <option value="2">Zona 2</option>
+            <option value="3">Zona 3</option>
+            <option value="4">Zona 4</option>
+            <option value="5">Garaža</option>
+            <option value="6">Privatan</option>
+            <option value="7">Javni</option>
           </select>
 
-          <select
-            value={showOnlyFavorites ? "favorites" : ""}
-            onChange={(e) => setShowOnlyFavorites(e.target.value === "favorites")}
-            style={{ marginRight: "8px" }}
+          {/* NOVI FAVORITE TOGGLE */}
+          <button
+            className={`favorites-toggle ${showOnlyFavorites ? "active" : ""}`}
+            onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
           >
-            <option value="">Svi parkinzi</option>
-            <option value="favorites">Favoriti ❤️</option>
-          </select>
+            ❤️ Favoriti
+          </button>
         </div>
       </div>
 
@@ -144,7 +141,7 @@ const MobileParkingList: React.FC<MobileParkingListProps> = ({
                 </button>
               </div>
               <div style={{ fontSize: "13px", color: "#444" }}>
-              {zoneLabels[marker.zona] || `Nepoznata (${marker.zona})`} | Slobodna mjesta: {marker.slobodnaMjesta}
+                {zoneLabels[marker.zona] || `Nepoznata (${marker.zona})`} | Slobodna mjesta: {marker.slobodnaMjesta}
               </div>
               {userPosition && (
                 <div style={{ fontSize: "13px", color: "#444" }}>
