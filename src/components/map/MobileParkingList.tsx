@@ -210,7 +210,7 @@ const MobileParkingList: React.FC<MobileParkingListProps> = ({
                     marker.lon
                   ) /
                     1000
-                  ).toFixed(2)}{" "}
+                  ).toFixed(1)}{" "}
                   km udaljeno
                 </div>
               )}

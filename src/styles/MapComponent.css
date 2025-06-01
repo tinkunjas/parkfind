@@ -21,7 +21,7 @@
 .centerButton {
   position: absolute;
   bottom: 100px;
-  left: 12px;
+  left: 10px !important;
   z-index: 1000;
   background: #fff;
   border-radius: 50%;
@@ -65,4 +65,29 @@
 .hamburger:focus,
 .centerButton:focus {
   outline: none;
+}
+
+.google-maps-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 0px 10px;
+  border-radius: 28px;
+  text-decoration: none;
+  color: #2563eb;
+  font-size: 14px;
+  width: fit-content;
+  transition: background-color 0.2s;
+  margin-top: 4px;
+}
+
+.google-maps-button:hover {
+  background-color: #f0f0f0;
+}
+
+.google-maps-button img {
+  width: 16px;
+  height: 20px;
 }

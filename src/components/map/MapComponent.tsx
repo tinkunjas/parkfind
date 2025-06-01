@@ -319,33 +319,15 @@ const MapComponent: React.FC = () => {
                 <br />
                 Slobodna mjesta: {marker.slobodnaMjesta}
                 <br />
-
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${marker.position[0]},${marker.position[1]}&travelmode=driving`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    textDecoration: "none",
-                    marginTop: "8px",
-                    color: "#2563eb",
-                  }}
-                >
-                  <img
-                    src="/gmaps.png"
-                    alt="gmaps"
-                    style={{
-                      width: "18px",
-                      height: "18px",
-                      borderRadius: "4px",
-                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.15)",
-                      objectFit: "contain",
-                    }}
-                  />
-                  Otvori u Google Maps
-                </a>
+               <a
+  className="google-maps-button"
+  href={`https://www.google.com/maps/dir/?api=1&destination=${marker.position[0]},${marker.position[1]}&travelmode=driving`}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <img src="/gmaps.png" alt="Google Maps" />
+  <span>Otvori u Google Maps</span>
+</a>
               </div>
             </Popup>
 

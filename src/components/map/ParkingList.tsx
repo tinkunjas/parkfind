@@ -130,7 +130,7 @@ const ParkingList: React.FC<Props> = ({
                   marker.position[0],
                   marker.position[1]
                 ) / 1000
-              ).toFixed(2)
+              ).toFixed(1)
             : "-";
 
           return (
