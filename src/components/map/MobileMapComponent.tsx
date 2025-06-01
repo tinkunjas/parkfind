@@ -49,6 +49,7 @@ interface MarkerData {
   name: string;
   zona: number;
   slobodnaMjesta: number;
+  mparking: number;
 }
 
 const MobileMapComponent: React.FC = () => {
@@ -152,6 +153,7 @@ const MobileMapComponent: React.FC = () => {
   name: item.name,
   zona: item.zona,
   slobodnaMjesta: item.slobodnaMjesta ?? item.slobodnamjesta ?? 0,
+   mparking: item.mparking
 }));
 setMarkers(parsed);
       } catch (error) {
@@ -294,6 +296,14 @@ setMarkers(parsed);
   <img src="/gmaps.png" alt="Google Maps" />
   <span>Otvori u Google Maps</span>
 </a>
+<a
+      className="sms-pay-button"
+      href={`sms:${marker.mparking}?body=${encodeURIComponent(
+        `70010 Zona ${marker.zona}`
+      )}`}
+    >
+      Plati
+    </a>
       </Popup>
     </Marker>
 ))}
