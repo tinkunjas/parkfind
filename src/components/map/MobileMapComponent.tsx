@@ -296,14 +296,20 @@ setMarkers(parsed);
   <img src="/gmaps.png" alt="Google Maps" />
   <span>Otvori u Google Maps</span>
 </a>
-<a
-      className="sms-pay-button"
-      href={`sms:${marker.mparking}?body=${encodeURIComponent(
-        `70010 Zona ${marker.zona}`
-      )}`}
-    >
-      Plati
-    </a>
+{![null, "null", 5, 6, 7].includes(marker.zona) ? (
+  <a
+    className="sms-pay-button"
+    href={`sms:${marker.mparking}?body=${encodeURIComponent(
+      `70010 Zona ${marker.zona}`
+    )}`}
+  >
+    Plati
+  </a>
+) : (
+  <p style={{ color: "#888", fontSize: "14px" }}>
+    Ovaj parking se ne plaća.
+  </p>
+)}
       </Popup>
     </Marker>
 ))}
