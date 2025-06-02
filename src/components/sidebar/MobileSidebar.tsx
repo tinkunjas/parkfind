@@ -9,7 +9,22 @@ interface MobileSidebarProps {
   setRegistracija: (reg: string) => void;
 }
 
-const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, setIsOpen, registracija, setRegistracija }) => {
+const MobileSidebar: React.FC<MobileSidebarProps> = ({
+  isOpen,
+  setIsOpen,
+  registracija,
+  setRegistracija
+}) => {
+  const handleSubmit = () => {
+    if (registracija.trim() === "") {
+      alert("Unesite registraciju prije potvrde.");
+      return;
+    }
+    alert(`Registracija spremljena: ${registracija}`);
+    setIsOpen(false);
+
+  };
+
   return (
     <>
       {isOpen && <div className="mobile-overlay" onClick={() => setIsOpen(false)}></div>}
@@ -33,14 +48,17 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, setIsOpen, regist
             </Link>
           </li>
           <li>
-  <input
-    type="text"
-    placeholder="Unesi registraciju:"
-    className="mobile-registration-input"
-    value={registracija}
-    onChange={(e) => setRegistracija(e.target.value.toUpperCase())}
-  />
-</li>
+            <input
+              type="text"
+              placeholder="Unesi registraciju:"
+              className="mobile-registration-input"
+              value={registracija}
+              onChange={(e) => setRegistracija(e.target.value.toUpperCase())}
+            />
+            <button className="mobile-registration-submit" onClick={handleSubmit}>
+              ✅ Potvrdi registraciju
+            </button>
+          </li>
         </ul>
       </div>
     </>

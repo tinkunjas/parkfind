@@ -70,3 +70,21 @@
 .mobile-registration-input:focus {
   border-color: #2563eb;
 }
+
+.mobile-registration-submit {
+  margin-top: 0.8rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+  background-color: #2563eb;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 75%;
+}
+
+.mobile-registration-submit:hover {
+  background-color: #1d4ed8;
+}
