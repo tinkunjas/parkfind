@@ -4,6 +4,7 @@ import "../styles/pageStyles.css";
 
 const MobileSupportPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [registracija, setRegistracija] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,7 +24,7 @@ const MobileSupportPage: React.FC = () => {
 
   return (
     <div className="page-container">
-      <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} registracija={registracija} setRegistracija={setRegistracija}/>
 
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
         <span className="hamburger-icon">☰</span>

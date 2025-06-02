@@ -10,7 +10,7 @@ interface TeamMember {
 
 const MobileTeam: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [registracija, setRegistracija] = useState<string>("");
   const teamMembers: TeamMember[] = [
     {
       name: "Tin Kunjas",
@@ -31,7 +31,7 @@ const MobileTeam: React.FC = () => {
 
   return (
     <div className="page-container">
-      <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} registracija={registracija} setRegistracija={setRegistracija}/>
 
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
         <span className="hamburger-icon">☰</span>
