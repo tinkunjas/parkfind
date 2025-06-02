@@ -35,7 +35,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, setIsOpen, regist
           <li>
   <input
     type="text"
-    placeholder="Unesi registraciju"
+    placeholder="Unesi registraciju:"
     className="mobile-registration-input"
     value={registracija}
     onChange={(e) => setRegistracija(e.target.value.toUpperCase())}
