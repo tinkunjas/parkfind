@@ -55,4 +55,18 @@
   background: rgba(0, 0, 0, 0.25);
   z-index: 1500;
 }
-  
+  .mobile-registration-input {
+  width: 75%;
+  padding: 0.6rem 1rem;
+  font-size: 1.2rem;
+  border: 2px solid #bfdbfe;
+  border-radius: 8px;
+  background-color: #eff6ff;
+  color: #1e3a8a;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.mobile-registration-input:focus {
+  border-color: #2563eb;
+}

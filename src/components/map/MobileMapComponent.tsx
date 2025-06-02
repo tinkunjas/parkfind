@@ -66,6 +66,8 @@ const MobileMapComponent: React.FC = () => {
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [travelDistance, setTravelDistance] = useState<number | null>(null);
   const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
+  const [registracija, setRegistracija] = useState(() => {
+  return localStorage.getItem("registracija") || "";});
   const markerRefs = useRef<Record<number, L.Marker>>({});
   const routingControlRef = useRef<any>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -140,6 +142,14 @@ const MobileMapComponent: React.FC = () => {
     }
   }, [userPosition]);
   
+  useEffect(() => {
+  try {
+    localStorage.setItem("registracija", registracija);
+  } catch (e) {
+    console.error("Ne mogu spremiti registraciju:", e);
+  }
+}, [registracija]);
+
 
   useEffect(() => {
     const fetchMarkers = async () => {
@@ -187,7 +197,7 @@ setMarkers(parsed);
 
   return (
     <div className="mobile-container">
-      <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <MobileSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} registracija={registracija} setRegistracija={setRegistracija}/>
       <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
       <button className="layer-style-button" onClick={handleChangeMapStyle}>
       <img src="/layer.png" alt="layer" />
@@ -299,9 +309,7 @@ setMarkers(parsed);
 {![null, "null", 5, 6, 7].includes(marker.zona) ? (
   <a
     className="sms-pay-button"
-    href={`sms:${marker.mparking}?body=${encodeURIComponent(
-      `70010 Zona ${marker.zona}`
-    )}`}
+    href={`sms:${marker.mparking}?body=${encodeURIComponent(registracija)}`}
   >
     Plati
   </a>

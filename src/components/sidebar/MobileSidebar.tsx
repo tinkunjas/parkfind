@@ -5,9 +5,11 @@ import { Link } from "react-router-dom";
 interface MobileSidebarProps {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  registracija: string;
+  setRegistracija: (reg: string) => void;
 }
 
-const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, setIsOpen }) => {
+const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, setIsOpen, registracija, setRegistracija }) => {
   return (
     <>
       {isOpen && <div className="mobile-overlay" onClick={() => setIsOpen(false)}></div>}
@@ -30,6 +32,15 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, setIsOpen }) => {
               📞 <span>Support</span>
             </Link>
           </li>
+          <li>
+  <input
+    type="text"
+    placeholder="Unesi registraciju"
+    className="mobile-registration-input"
+    value={registracija}
+    onChange={(e) => setRegistracija(e.target.value.toUpperCase())}
+  />
+</li>
         </ul>
       </div>
     </>
