@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -255,13 +255,12 @@ const MapComponent: React.FC = () => {
           </Marker>
         )}
 
-        {}
         <button
           style={{
-            position: "absolute",
+            position: "fixed",
             bottom: "100px",
             left: "12px",
-            zIndex: 1000,
+            zIndex: 2000,
             background: "#fff",
             borderRadius: "50%",
             width: "42px",
@@ -272,7 +271,7 @@ const MapComponent: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: 0,
+            padding: 0
           }}
           onClick={() => {
             if (userPosition && mapRef.current) {
@@ -284,7 +283,7 @@ const MapComponent: React.FC = () => {
             }
           }}
         >
-          <img src="/center.png" alt="Centar" style={{ width: 22, height: 22 }} />
+          <img src="/center.png" alt="Centar" style={{ width: "22px", height: "22px" }} />
         </button>
 
         {filtriraniMarkeri.map((marker) => (

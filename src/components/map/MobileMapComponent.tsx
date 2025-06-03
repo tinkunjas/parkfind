@@ -39,7 +39,7 @@ const zoneLabels: Record<number, string> = {
   4: "Zona 4",
   5: "Garaža",
   6: "Privatan parking",
-  7: "Javni pakring"
+  7: "Javni parking"
 };
 
 interface MarkerData {

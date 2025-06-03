@@ -186,18 +186,6 @@
   }
 }
 
-.parking-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
-  background: #fff;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-
-
 .mobile-content select {
   padding: 4px 2px;
   border: 1px solid #ccc;
@@ -324,6 +312,7 @@
   padding: 0;
   outline: none;
   box-shadow: none;
+  font-size: 26px;
 }
 
 .heart-button:focus {
@@ -395,7 +384,7 @@
   margin-bottom: 8px;
   padding: 10px 14px;
   border-radius: 28px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: transform 0.1s ease, box-shadow 0.2s ease;
 }
 
@@ -421,14 +410,6 @@
 .navigate-button img {
   width: 26px;
   height: 26px;
-}
-
-.heart-button {
-  font-size: 26px;
-}
-
-.parking-item {
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .parking-search-input {

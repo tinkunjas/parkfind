@@ -66,20 +66,13 @@ const SearchResultMarker: React.FC<SearchResultMarkerProps> = ({
           </button>
 
           <a
+            className="google-maps-button"
             href={`https://www.google.com/maps/dir/?api=1&destination=${searchResult.lat},${searchResult.lon}&travelmode=driving`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              textDecoration: "none",
-              marginTop: "8px",
-              fontSize: "14px"
-            }}
           >
-            <img src="/gmaps.png" alt="gmaps" className="google-maps-icon" />
-            Otvori u Google Maps
+            <img src="/gmaps.png" alt="Google Maps" />
+            <span>Otvori u Google Maps</span>
           </a>
         </div>
       </Popup>

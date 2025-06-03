@@ -26,7 +26,7 @@ const Team: React.FC = () => {
     {
       name: "Martino Pranjić",
       role: "Hardware Specialist",
-      description: "Zadužen za hardverske komponente i IoT integracije",
+      description: "Zadužen za hardverske komponente i funkcionalnost",
     }
   ];
 

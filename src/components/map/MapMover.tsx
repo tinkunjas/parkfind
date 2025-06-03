@@ -33,11 +33,11 @@ const MapMover: React.FC<MapMoverProps> = ({ lat, lon, name }) => {
       <div>
         ${name?.length ? name.length > 60 ? name.substring(0, 60) + "..." : name : "Odabrana lokacija"}
         <br/>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving" 
-           target="_blank" rel="noopener noreferrer" 
-           style="display: flex; align-items: center; gap: 6px; text-decoration: none; margin-top: 8px; color: #2563eb;">
-          <img src="/gmaps.png" alt="gmaps" class="google-maps-icon" />
-          Otvori u Google Maps
+        <a class="google-maps-button" 
+           href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=driving" 
+           target="_blank" rel="noopener noreferrer">
+          <img src="/gmaps.png" alt="Google Maps" />
+          <span>Otvori u Google Maps</span>
         </a>
       </div>
     `;
