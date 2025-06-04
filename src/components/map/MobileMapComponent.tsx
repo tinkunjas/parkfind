@@ -82,13 +82,6 @@ const [registracija, setRegistracija] = useState<string>(() => {
     return "";
   }
 });
-const removeRegistracija = (value: string) => {
-  const updated = registracije.filter(r => r !== value);
-  setRegistracije(updated);
-  if (registracija === value) {
-    setRegistracija(updated.length > 0 ? updated[0] : "");
-  }
-};
   const markerRefs = useRef<Record<number, L.Marker>>({});
   const routingControlRef = useRef<any>(null);
   const mapRef = useRef<L.Map | null>(null);
