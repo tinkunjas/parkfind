@@ -91,7 +91,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
               value={registracija}
               onChange={(e) => setRegistracija(e.target.value)}
             >
-              <option value="">Odaberi registraciju</option>
+              <option value="">Odaberite registraciju:</option>
               {savedRegistracije.map((reg) => (
                 <option key={reg} value={reg}>{reg}</option>
               ))}

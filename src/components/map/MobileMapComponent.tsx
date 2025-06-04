@@ -66,8 +66,29 @@ const MobileMapComponent: React.FC = () => {
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [travelDistance, setTravelDistance] = useState<number | null>(null);
   const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
-  const [registracija, setRegistracija] = useState(() => {
-  return localStorage.getItem("registracija") || "";});
+const [registracije, setRegistracije] = useState<string[]>(() => {
+  try {
+    return JSON.parse(localStorage.getItem("registracije") || "[]");
+  } catch {
+    return [];
+  }
+});
+
+const [registracija, setRegistracija] = useState<string>(() => {
+  try {
+    const list = JSON.parse(localStorage.getItem("registracije") || "[]");
+    return list.length > 0 ? list[0] : "";
+  } catch {
+    return "";
+  }
+});
+const removeRegistracija = (value: string) => {
+  const updated = registracije.filter(r => r !== value);
+  setRegistracije(updated);
+  if (registracija === value) {
+    setRegistracija(updated.length > 0 ? updated[0] : "");
+  }
+};
   const markerRefs = useRef<Record<number, L.Marker>>({});
   const routingControlRef = useRef<any>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -112,6 +133,10 @@ const MobileMapComponent: React.FC = () => {
       }
     );
   }, []);
+  
+useEffect(() => {
+  localStorage.setItem("registracije", JSON.stringify(registracije));
+}, [registracije]);
 
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
