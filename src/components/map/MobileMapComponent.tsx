@@ -66,7 +66,7 @@ const MobileMapComponent: React.FC = () => {
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [travelDistance, setTravelDistance] = useState<number | null>(null);
   const [tileStyle, setTileStyle] = useState<keyof typeof tileLayers>("osm");
-const [registracije, setRegistracije] = useState<string[]>(() => {
+const [registracije] = useState<string[]>(() => {
   try {
     return JSON.parse(localStorage.getItem("registracije") || "[]");
   } catch {
