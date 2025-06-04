@@ -91,7 +91,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
               value={registracija}
               onChange={(e) => setRegistracija(e.target.value)}
             >
-              <option value="">Odaberite registraciju:</option>
+              <option value="">Odaberi registraciju:</option>
               {savedRegistracije.map((reg) => (
                 <option key={reg} value={reg}>{reg}</option>
               ))}
@@ -99,7 +99,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
 
             <input
               type="text"
-              placeholder="Dodaj novu registraciju"
+              placeholder="Dodaj registraciju"
               className="mobile-registration-input"
               value={newRegistracija}
               onChange={(e) => setNewRegistracija(e.target.value.toUpperCase())}
