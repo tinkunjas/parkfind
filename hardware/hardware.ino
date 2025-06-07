@@ -4,16 +4,24 @@
 #include <WebServer.h>
 #include <vector>
 #include <ArduinoJson.h>
+#include <HTTPClient.h>
+
 
 #define CAMERA_MODEL_AI_THINKER
 #include "camera_pins.h"
 
-#define DETECTION_INTERVAL 5000
-#define COLOR_SIMILARITY_THRESHOLD 25
+#define COLOR_SIMILARITY_THRESHOLD 60
 
 WebServer server(80);
 const char* ssid = "ESP32-Parking";
 const char* password = "parking123";
+
+
+const char* router_ssid = "12345678";
+const char* router_password = "12345678";
+
+unsigned long lastFrameTime = 0;
+const unsigned long interval = 3000;
 
 struct ParkingSpace {
   int x1, y1, x2, y2;
@@ -21,14 +29,29 @@ struct ParkingSpace {
   bool occupied;
 };
 
-camera_config_t config;  // Global camera config
+camera_config_t config;
 bool setupMode = true;
-bool detectionReady = false;  // Used to switch to RGB mode only once
+bool detectionReady = false;
 std::vector<ParkingSpace> parkingSpaces;
-unsigned long lastDetectionTime = 0;
+bool detecting = false;
 
 void setup() {
   Serial.begin(115200);
+
+
+  WiFi.begin(router_ssid, router_password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("\nConnected to router");
+  Serial.print("STA IP: ");
+  Serial.println(WiFi.localIP());
+
+  Serial.print("AP IP: ");
+  Serial.println(WiFi.softAPIP());
+
 
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -61,6 +84,10 @@ void setup() {
     config.fb_count = 1;
   }
 
+
+
+  esp_camera_deinit();
+  delay(100);
   esp_err_t err = esp_camera_init(&config);
   if (err != ESP_OK) {
     Serial.printf("Camera init failed: 0x%x\n", err);
@@ -80,7 +107,11 @@ void setup() {
       return;
     }
     server.send_P(200, "image/jpeg", (const char*)fb->buf, fb->len);
-    esp_camera_fb_return(fb);
+    if (fb) {
+      esp_camera_fb_return(fb);
+    }
+
+    
   });
 
 
@@ -173,13 +204,18 @@ void setup() {
     esp_camera_deinit();
     delay(200);
     config.pixel_format = PIXFORMAT_GRAYSCALE;
-    config.frame_size = FRAMESIZE_SVGA; // manja rezolucija za manje RAM-a
+    config.frame_size = FRAMESIZE_SVGA;
+    config.fb_count = 1;
 
     if (esp_camera_init(&config) != ESP_OK) {
-      Serial.println("Grayscale camera init failed");
-      server.send(500, "text/plain", "Grayscale init failed");
+      Serial.println("Failed to init grayscale mode");
+      server.send(500, "text/plain", "Camera error");
       return;
     }
+
+
+
+
 
     camera_fb_t* fb = esp_camera_fb_get();
     if(fb) {
@@ -191,7 +227,6 @@ void setup() {
       return;
     }
 
-    // Scale factors from 1600x1200 JPEG to 800x600 GRAYSCALE
     float xScale = 800.0 / 1600.0;
     float yScale = 600.0 / 1200.0;
 
@@ -224,101 +259,92 @@ void setup() {
       parkingSpaces.push_back(p);
     }
 
+    if (fb) {
     esp_camera_fb_return(fb);
+    }
     esp_camera_deinit();
 
 
     setupMode = false;
     detectionReady = true;
-    lastDetectionTime = millis();
+
+      if (esp_camera_init(&config) != ESP_OK) {
+      Serial.println("Camera re-init failed after setup");
+    }
+
     Serial.println("Setup complete. Switching to monitor mode.");
     server.send(200, "application/json", "{\"status\":\"ok\"}");
   });
 
   server.begin();
   Serial.println("Server started");
+ 
 }
 
 void loop() {
-
-
-
   server.handleClient();
 
-  if (!setupMode && detectionReady && millis() - lastDetectionTime > DETECTION_INTERVAL) {
+  if (!setupMode && detectionReady && !detecting && (millis() - lastFrameTime >= interval)) {
+    lastFrameTime = millis();
+    detecting = true;
 
+    camera_fb_t* fb = nullptr;
+    const int maxAttempts = 5;
+    int attempt = 0;
 
-
-    Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
-    Serial.printf("Minimum ever free heap: %d bytes\n", ESP.getMinFreeHeap());
-    Serial.printf("Free PSRAM (if available): %d bytes\n", ESP.getFreePsram());
-
-
-
-    Serial.println("Running parking detection...");
-
-   // Ensure camera is in grayscale mode for detection
-    esp_camera_deinit();
-    delay(200);
-    config.pixel_format = PIXFORMAT_GRAYSCALE;
-    config.frame_size = FRAMESIZE_SVGA;
-    
-
-    esp_err_t initResult = esp_camera_init(&config);
-    int retryCount = 0;
-    while (initResult != ESP_OK && retryCount < 5) {
-      Serial.printf("Camera init failed (%d), retrying...\n", initResult);
-      delay(1000);
-      initResult = esp_camera_init(&config);
-      retryCount++;
-    }
-    if (initResult != ESP_OK) {
-      Serial.println("Camera still not detected after retries.");
-      return;
+    while (attempt < maxAttempts && fb == nullptr) {
+      fb = esp_camera_fb_get();
+      if (!fb) {
+        Serial.println("Camera busy or not ready, retrying...");
+        delay(50);
+      }
+      attempt++;
     }
 
-
-
-
-    camera_fb_t* fb = esp_camera_fb_get();
-    if(fb) {
-      Serial.printf("pixformat: %d, resolution: %dx%d\n", fb->format, fb->width, fb->height);
-    }
     if (!fb) {
-      Serial.println("Failed to get RGB frame");
+      Serial.println("Camera still not ready after retries.");
+      detecting = false;
       return;
     }
 
     for (size_t i = 0; i < parkingSpaces.size(); i++) {
-  auto& s = parkingSpaces[i];
-  int diff = 0, count = 0;
-  long sumBrightness = 0;
+      auto& s = parkingSpaces[i];
+      int diff = 0, count = 0;
+      long sumBrightness = 0;
 
-  for (int y = s.y1; y < s.y2; y += 5) {
-    for (int x = s.x1; x < s.x2; x += 5) {
-      int o = y * fb->width + x;
-      if (o >= fb->len) continue;
-      uint8_t brightness = fb->buf[o];
-      sumBrightness += brightness;
-      int d = abs(brightness - s.avgBrightness);
-      count++;
-      if (d > COLOR_SIMILARITY_THRESHOLD) diff++;
+      for (int y = s.y1; y < s.y2; y += 5) {
+        for (int x = s.x1; x < s.x2; x += 5) {
+          int o = y * fb->width + x;
+          if (o >= fb->len) continue;
+          uint8_t brightness = fb->buf[o];
+          sumBrightness += brightness;
+          int d = abs(brightness - s.avgBrightness);
+          count++;
+          if (d > COLOR_SIMILARITY_THRESHOLD) diff++;
+        }
+      }
+      Serial.printf("Space %d: avg=%d, new_avg=%ld, diff_count=%d/%d\n", (int)i, s.avgBrightness, sumBrightness / count, diff, count);
+      s.occupied = (count > 0) && (diff > (count / 5));
+      Serial.printf("Space %d - %s\n", (int)i, s.occupied ? "OCCUPIED" : "FREE");
     }
-  }
 
-  int newAvg = (count > 0) ? sumBrightness / count : 0;
-  int brightnessDelta = abs(newAvg - s.avgBrightness);
-  s.occupied = diff > (count / 5);
+    if (fb) {
+      esp_camera_fb_return(fb);
+    }
+    int freeCount = 0;
+    for (const auto& s : parkingSpaces)
+      if (!s.occupied) freeCount++;
 
-  Serial.printf("Space %d - initial: %d, current: %d, delta: %d -> %s\n",
-                (int)i, s.avgBrightness, newAvg, brightnessDelta,
-                s.occupied ? "OCCUPIED" : "FREE");
-}
+    HTTPClient http;
+    String url = "https://e075-89-164-94-187.ngrok-free.app/set=" + String(freeCount);
+    http.begin(url);
+    int httpCode = http.GET();
+    if (httpCode > 0)
+      Serial.printf("Sent to server, response: %d\n", httpCode);
+    else
+      Serial.printf("Failed to connect: %s\n", http.errorToString(httpCode).c_str());
+    http.end();
 
-    esp_camera_fb_return(fb);
-    esp_camera_deinit();
-
-    lastDetectionTime = millis();
-    Serial.println("Detection done.");
+    detecting = false;
   }
 }
