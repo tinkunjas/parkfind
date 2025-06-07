@@ -146,3 +146,12 @@
     padding: 1.5rem;
   }
 }
+.alert-success {
+  color: #000;
+  text-align: center;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
