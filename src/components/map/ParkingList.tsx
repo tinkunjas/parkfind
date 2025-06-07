@@ -82,7 +82,7 @@ const ParkingList: React.FC<Props> = ({
 
   return (
     <div className="parking-list-container">
-      {/* Fixed header with filters */}
+      {}
       <div className="parking-fixed-header">
         <h3 className="parking-title-header">🅿️ Lista parkinga</h3>
 
@@ -123,7 +123,7 @@ const ParkingList: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* Scrollable content */}
+      {}
       <div className="parking-scrollable-content">
         {sortedMarkers.map((marker) => {
           const distance = userPosition
