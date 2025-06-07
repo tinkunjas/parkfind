@@ -1,3 +1,4 @@
+/*
 #include <algorithm>
 #include "esp_camera.h"
 #include <WiFi.h>
@@ -348,3 +349,4 @@ void loop() {
     detecting = false;
   }
 }
+*/
